@@ -86,7 +86,7 @@ export default function App() {
         return;
       }
 
-      const newPlayerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const newPlayerId = `player-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
       setPlayerId(newPlayerId);
       setSessionId(data.session.id);
 

@@ -2,6 +2,7 @@ const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
 const { Server } = require('socket.io');
+const { calculateScore, calculateLeaderboard, selectRandomWinners } = require('../../packages/shared/dist/utils');
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
@@ -234,30 +235,7 @@ app.prepare().then(() => {
     });
   });
 
-  // Helper functions
-  function calculateScore(isCorrect, timeLimit, timeTaken, basePoints) {
-    if (!isCorrect) return 0;
-    const timeBonus = Math.max(0, (timeLimit - timeTaken) / timeLimit);
-    return Math.round(basePoints * (0.5 + 0.5 * timeBonus));
-  }
 
-  function calculateLeaderboard(players) {
-    const sorted = [...players].sort((a, b) => b.score - a.score);
-    return sorted.map((player, index) => ({
-      playerId: player.id,
-      playerName: player.name,
-      score: player.score,
-      rank: index + 1
-    }));
-  }
-
-  function selectRandomWinners(players, count) {
-    const shuffled = [...players].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, count).map(p => ({
-      playerId: p.id,
-      playerName: p.name
-    }));
-  }
 
   // Make storage available to API routes
   global.storage = {
