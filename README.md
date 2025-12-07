@@ -7,7 +7,7 @@ A cross-platform live quiz application similar to Kahoot/Menti, built with Expo 
 ### Core Features (Open Source)
 - 🎯 **Multiple Question Types**: Multiple choice, polls, scale ratings, and numeric guesses
 - 📱 **Cross-Platform**: Web (Next.js), iOS & Android (Expo)
-- 🔗 **Easy Join**: Join via 6-character codes or QR codes
+- 🔗 **Easy Join**: Join via memorable word-pair codes (e.g., "happy-tiger") or QR codes
 - 👥 **Named Players**: Players can set their display names
 - 👍 **Live Reactions**: Send thumbs up reactions in real-time
 - 🏆 **Leaderboards**: Real-time scoring and rankings
@@ -56,14 +56,14 @@ cd yell
 
 2. Install dependencies:
 ```bash
-npm install
+bun install
 ```
 
 3. Build the shared package:
 ```bash
 cd packages/shared
-npm install
-npm run build
+bun install
+bun run build
 cd ../..
 ```
 
@@ -71,13 +71,13 @@ cd ../..
 
 #### Web Application
 ```bash
-npm run dev:web
+bun run dev:web
 ```
 The web app will be available at `http://localhost:3000`
 
 #### Mobile Application
 ```bash
-npm run dev:mobile
+bun run dev:mobile
 ```
 Then:
 - Press `i` for iOS simulator
@@ -104,7 +104,7 @@ Then:
 #### On Web:
 1. Go to the home page
 2. Click "Join a Quiz"
-3. Enter the 6-character join code
+3. Enter the join code (e.g., "happy-tiger")
 4. Enter your name
 5. Click "Join Quiz"
 

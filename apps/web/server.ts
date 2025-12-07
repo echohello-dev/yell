@@ -1,20 +1,20 @@
-const { createServer } = require('http');
-const { parse } = require('url');
-const next = require('next');
-const { Server } = require('socket.io');
-const { calculateScore, calculateLeaderboard, selectRandomWinners } = require('../../packages/shared/dist/utils');
+import { createServer } from 'http';
+import { parse } from 'url';
+import next from 'next';
+import { Server } from 'socket.io';
+import { calculateScore, calculateLeaderboard, selectRandomWinners } from '../../packages/shared/dist/utils.js';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
-const port = parseInt(process.env.PORT, 10) || 3000;
+const port = parseInt(process.env.PORT || '3000', 10);
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
 // In-memory storage (replace with database in production)
-const sessions = new Map();
-const players = new Map();
-const quizzes = new Map();
+const sessions = new Map<string, any>();
+const players = new Map<string, any>();
+const quizzes = new Map<string, any>();
 
 app.prepare().then(() => {
   const httpServer = createServer(async (req, res) => {

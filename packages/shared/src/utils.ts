@@ -1,20 +1,30 @@
+// Word pairs for memorable join codes
+const ADJECTIVES = [
+  'happy', 'clever', 'bright', 'swift', 'brave', 'calm', 'cool', 'wise',
+  'bold', 'keen', 'warm', 'fresh', 'kind', 'quick', 'noble', 'sharp',
+  'great', 'strong', 'proud', 'gentle', 'wild', 'free', 'pure', 'true'
+];
+
+const NOUNS = [
+  'tiger', 'eagle', 'lion', 'bear', 'wolf', 'hawk', 'fox', 'dragon',
+  'panda', 'otter', 'dolphin', 'falcon', 'cobra', 'phoenix', 'raven', 'lynx',
+  'shark', 'rhino', 'bison', 'moose', 'leopard', 'jaguar', 'cougar', 'viper'
+];
+
 /**
- * Generate a random 6-character join code
+ * Generate a memorable join code using word pairs (e.g., "happy-tiger")
  */
 export function generateJoinCode(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
+  const adjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+  const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+  return `${adjective}-${noun}`;
 }
 
 /**
- * Validate a join code format
+ * Validate a join code format (word-pair format)
  */
 export function isValidJoinCode(code: string): boolean {
-  return /^[A-Z0-9]{6}$/.test(code);
+  return /^[a-z]+-[a-z]+$/.test(code);
 }
 
 /**

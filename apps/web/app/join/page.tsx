@@ -21,7 +21,7 @@ export default function JoinPage() {
     setError('');
 
     try {
-      const response = await fetch(`/api/sessions?joinCode=${joinCode.toUpperCase()}`);
+      const response = await fetch(`/api/sessions?joinCode=${joinCode.toLowerCase()}`);
       
       if (!response.ok) {
         setError('Session not found. Please check your code.');
@@ -32,7 +32,7 @@ export default function JoinPage() {
       const { session } = await response.json();
       
       // Generate player ID and navigate to play page
-      const playerId = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const playerId = `player-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
       router.push(`/play/${session.id}?playerId=${playerId}&playerName=${encodeURIComponent(playerName)}`);
     } catch (error) {
       console.error('Error joining session:', error);
@@ -71,11 +71,10 @@ export default function JoinPage() {
             <input
               type="text"
               value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+              onChange={(e) => setJoinCode(e.target.value.toLowerCase())}
               onKeyPress={handleKeyPress}
-              placeholder="Enter 6-character code"
-              maxLength={6}
-              className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-center text-2xl font-bold tracking-widest uppercase"
+              placeholder="e.g., happy-tiger"
+              className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-center text-2xl font-bold lowercase"
             />
           </div>
 

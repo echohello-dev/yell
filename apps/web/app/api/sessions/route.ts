@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
+import { generateJoinCode } from '@yell/shared';
 
 declare global {
   var storage: {
@@ -7,15 +8,6 @@ declare global {
     sessions: Map<string, any>;
     players: Map<string, any>;
   };
-}
-
-function generateJoinCode(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
 }
 
 export async function POST(request: Request) {
@@ -49,7 +41,7 @@ export async function GET(request: Request) {
   
   if (joinCode) {
     const sessions = Array.from(global.storage.sessions.values());
-    const session = sessions.find(s => s.joinCode === joinCode.toUpperCase());
+    const session = sessions.find(s => s.joinCode === joinCode.toLowerCase());
     
     if (!session) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });

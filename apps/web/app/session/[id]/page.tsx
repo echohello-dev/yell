@@ -187,7 +187,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="flex-1">
                   <p className="text-gray-600 mb-2">Join Code:</p>
-                  <p className="text-5xl font-bold text-purple-600 tracking-widest">{session.joinCode}</p>
+                  <p className="text-5xl font-bold text-purple-600 lowercase">{session.joinCode}</p>
                   <p className="text-gray-600 mt-4 mb-2">Or visit:</p>
                   <p className="text-lg text-purple-600 font-semibold">{window.location.origin}/join</p>
                 </div>
