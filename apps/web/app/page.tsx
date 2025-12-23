@@ -4,18 +4,13 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center p-4">
       <div className="max-w-4xl w-full text-center">
-        <h1 className="text-6xl font-bold text-white mb-4">
-          Yell
-        </h1>
-        <p className="text-2xl text-white/90 mb-8">
-          Interactive Live Quizzes with a Spin!
-        </p>
+        <h1 className="text-6xl font-bold text-white mb-4">Yell</h1>
+        <p className="text-2xl text-white/90 mb-8">Interactive Live Quizzes with a Spin!</p>
         <p className="text-lg text-white/80 mb-12 max-w-2xl mx-auto">
-          Create engaging quizzes, polls, and interactive sessions for your classroom, 
-          team meetings, or events. Join with QR codes, compete on leaderboards, 
-          and win prizes!
+          Create engaging quizzes, polls, and interactive sessions for your classroom, team
+          meetings, or events. Join with QR codes, compete on leaderboards, and win prizes!
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
           <Link
             href="/host"

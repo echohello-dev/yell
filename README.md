@@ -5,6 +5,7 @@ A cross-platform live quiz application similar to Kahoot/Menti, built with Expo 
 ## Features
 
 ### Core Features (Open Source)
+
 - 🎯 **Multiple Question Types**: Multiple choice, polls, scale ratings, and numeric guesses
 - 📱 **Cross-Platform**: Web (Next.js), iOS & Android (Expo)
 - 🔗 **Easy Join**: Join via memorable word-pair codes (e.g., "happy-tiger") or QR codes
@@ -15,6 +16,7 @@ A cross-platform live quiz application similar to Kahoot/Menti, built with Expo 
 - ⚡ **Real-Time**: WebSocket-powered live updates
 
 ### Premium Features (SaaS)
+
 - 📊 **Analytics**: Detailed session analytics and insights
 - 🎨 **Custom Branding**: Logo, colors, and custom domains
 - 📝 **Session History**: Store and review past sessions
@@ -42,24 +44,28 @@ yell/
 ## Getting Started
 
 ### Prerequisites
-- Node.js 24+ 
+
+- Node.js 24+
 - bun
 - For mobile development: Expo CLI
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/echohello-dev/yell.git
 cd yell
 ```
 
 2. Install dependencies:
+
 ```bash
 bun install
 ```
 
 3. Build the shared package:
+
 ```bash
 cd packages/shared
 bun install
@@ -70,16 +76,21 @@ cd ../..
 ### Running the Applications
 
 #### Web Application
+
 ```bash
 bun run dev:web
 ```
+
 The web app will be available at `http://localhost:3000`
 
 #### Mobile Application
+
 ```bash
 bun run dev:mobile
 ```
+
 Then:
+
 - Press `i` for iOS simulator
 - Press `a` for Android emulator
 - Scan QR code with Expo Go app on your device
@@ -102,6 +113,7 @@ Then:
 ### Joining a Quiz (Player)
 
 #### On Web:
+
 1. Go to the home page
 2. Click "Join a Quiz"
 3. Enter the join code (e.g., "happy-tiger")
@@ -109,6 +121,7 @@ Then:
 5. Click "Join Quiz"
 
 #### On Mobile:
+
 1. Open the Yell app
 2. Choose "Join with Code" or "Scan QR Code"
 3. Enter the join code or scan the QR code
@@ -118,6 +131,7 @@ Then:
 ### During the Quiz
 
 **Host View:**
+
 - See all connected players
 - Start/end questions
 - View real-time answers
@@ -125,6 +139,7 @@ Then:
 - Award prizes at the end
 
 **Player View:**
+
 - Answer questions as they appear
 - See immediate feedback (correct/incorrect)
 - Send live reactions
@@ -141,7 +156,9 @@ Then:
 ## API Endpoints
 
 ### POST /api/quizzes
+
 Create a new quiz
+
 ```json
 {
   "title": "Quiz Title",
@@ -151,7 +168,9 @@ Create a new quiz
 ```
 
 ### POST /api/sessions
+
 Create a new session
+
 ```json
 {
   "quizId": "quiz-id",
@@ -160,11 +179,13 @@ Create a new session
 ```
 
 ### GET /api/sessions?joinCode=ABC123
+
 Get session by join code
 
 ## WebSocket Events
 
 ### Client → Server
+
 - `join:session` - Join a session as host or player
 - `session:start` - Start the session
 - `question:start` - Start a question
@@ -174,6 +195,7 @@ Get session by join code
 - `session:end` - End the session
 
 ### Server → Client
+
 - `session:joined` - Confirmation of joining
 - `player:joined` - New player joined
 - `session:started` - Session started
@@ -186,6 +208,7 @@ Get session by join code
 ## User Tiers
 
 ### Free Tier
+
 - Up to 50 players per session
 - Up to 10 questions per quiz
 - 5 sessions per month
@@ -193,6 +216,7 @@ Get session by join code
 - Basic features
 
 ### Premium Tier
+
 - Up to 500 players per session
 - Up to 100 questions per quiz
 - Unlimited sessions
@@ -201,6 +225,7 @@ Get session by join code
 - Custom branding
 
 ### Enterprise Tier
+
 - Unlimited players
 - Unlimited questions
 - Unlimited sessions
@@ -243,12 +268,14 @@ packages/shared/
 ## Deployment
 
 ### Web (Vercel/Netlify)
+
 ```bash
 cd apps/web
 npm run build
 ```
 
 ### Mobile (Expo)
+
 ```bash
 cd apps/mobile
 expo build:ios
@@ -258,6 +285,7 @@ expo build:android
 ## Contributing
 
 We welcome contributions! Please follow these guidelines:
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
@@ -270,6 +298,7 @@ MIT License - see LICENSE file for details
 ## Support
 
 For questions and support:
+
 - GitHub Issues: https://github.com/echohello-dev/yell/issues
 - Documentation: See this README
 

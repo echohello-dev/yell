@@ -51,7 +51,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
       socket.on('session:joined', async ({ session: joinedSession }) => {
         setSession(joinedSession);
         setPlayers(joinedSession.players || []);
-        
+
         // Fetch quiz details
         const res = await fetch('/api/quizzes');
         const { quizzes } = await res.json();
@@ -97,12 +97,12 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     if (questionStartTime && currentQuestionIndex >= 0 && quiz) {
       const question = quiz.questions[currentQuestionIndex];
       const timeLimit = question.timeLimit || 30;
-      
+
       timerRef.current = setInterval(() => {
         const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
         const remaining = Math.max(0, timeLimit - elapsed);
         setTimeRemaining(remaining);
-        
+
         if (remaining === 0) {
           if (timerRef.current !== null) {
             clearInterval(timerRef.current);
@@ -165,7 +165,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             <div>
               <h1 className="text-3xl font-bold text-gray-800 mb-2">{quiz.title}</h1>
               <p className="text-gray-600">
-                Session Status: <span className="font-semibold capitalize">{session.status.replace('_', ' ')}</span>
+                Session Status:{' '}
+                <span className="font-semibold capitalize">{session.status.replace('_', ' ')}</span>
               </p>
             </div>
             {session.status === 'waiting' && (
@@ -189,7 +190,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                   <p className="text-gray-600 mb-2">Join Code:</p>
                   <p className="text-5xl font-bold text-purple-600 lowercase">{session.joinCode}</p>
                   <p className="text-gray-600 mt-4 mb-2">Or visit:</p>
-                  <p className="text-lg text-purple-600 font-semibold">{window.location.origin}/join</p>
+                  <p className="text-lg text-purple-600 font-semibold">
+                    {window.location.origin}/join
+                  </p>
                 </div>
                 {qrCodeUrl && (
                   <div className="text-center">
@@ -202,7 +205,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           )}
 
           {/* Current Question or Results */}
-          {(session.status === 'started' || session.status === 'question_active' || session.status === 'question_results') && (
+          {(session.status === 'started' ||
+            session.status === 'question_active' ||
+            session.status === 'question_results') && (
             <div className="md:col-span-2 bg-white rounded-lg shadow-md p-6">
               {currentQuestionIndex >= 0 && !showResults ? (
                 <div>
@@ -215,7 +220,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                       <div className="text-sm text-gray-600">remaining</div>
                     </div>
                   </div>
-                  <p className="text-xl text-gray-700 mb-4">{quiz.questions[currentQuestionIndex].title}</p>
+                  <p className="text-xl text-gray-700 mb-4">
+                    {quiz.questions[currentQuestionIndex].title}
+                  </p>
                   <button
                     onClick={endQuestion}
                     className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold"
@@ -230,8 +237,13 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                     <h3 className="font-semibold text-gray-800 mb-2">Leaderboard</h3>
                     <div className="space-y-2">
                       {leaderboard.slice(0, 5).map((entry) => (
-                        <div key={entry.playerId} className="flex justify-between items-center bg-white p-2 rounded">
-                          <span>#{entry.rank} {entry.playerName}</span>
+                        <div
+                          key={entry.playerId}
+                          className="flex justify-between items-center bg-white p-2 rounded"
+                        >
+                          <span>
+                            #{entry.rank} {entry.playerName}
+                          </span>
                           <span className="font-bold">{entry.score}</span>
                         </div>
                       ))}
@@ -271,7 +283,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           {session.status === 'ended' && (
             <div className="md:col-span-2 bg-white rounded-lg shadow-md p-6">
               <h2 className="text-3xl font-bold text-gray-800 mb-4">Session Ended</h2>
-              
+
               {winners.length > 0 && (
                 <div className="bg-yellow-50 rounded-lg p-6 mb-6">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">🎉 Winners 🎉</h3>
@@ -288,8 +300,13 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
               <h3 className="text-xl font-bold text-gray-800 mb-4">Final Leaderboard</h3>
               <div className="space-y-2">
                 {leaderboard.map((entry) => (
-                  <div key={entry.playerId} className="flex justify-between items-center bg-gray-50 p-3 rounded">
-                    <span className="font-semibold">#{entry.rank} {entry.playerName}</span>
+                  <div
+                    key={entry.playerId}
+                    className="flex justify-between items-center bg-gray-50 p-3 rounded"
+                  >
+                    <span className="font-semibold">
+                      #{entry.rank} {entry.playerName}
+                    </span>
                     <span className="font-bold text-purple-600">{entry.score}</span>
                   </div>
                 ))}
@@ -299,12 +316,13 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
           {/* Players List */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
-              Players ({players.length})
-            </h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Players ({players.length})</h2>
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {players.map((player) => (
-                <div key={player.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <div
+                  key={player.id}
+                  className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                >
                   <span className="font-medium">{player.name}</span>
                   <span className="text-sm text-gray-600">{player.score}</span>
                 </div>
@@ -327,8 +345,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                   index === currentQuestionIndex
                     ? 'border-purple-600 bg-purple-50'
                     : index < currentQuestionIndex
-                    ? 'border-gray-300 bg-gray-50'
-                    : 'border-gray-300'
+                      ? 'border-gray-300 bg-gray-50'
+                      : 'border-gray-300'
                 }`}
               >
                 <div className="flex justify-between items-start mb-2">

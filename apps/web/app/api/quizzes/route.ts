@@ -16,7 +16,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const body = await request.json();
-  
+
   const quiz = {
     id: uuidv4(),
     title: body.title,
@@ -24,10 +24,10 @@ export async function POST(request: Request) {
     questions: body.questions || [],
     createdBy: body.createdBy || 'anonymous',
     createdAt: new Date(),
-    isPremium: body.isPremium || false
+    isPremium: body.isPremium || false,
   };
-  
+
   global.storage.quizzes.set(quiz.id, quiz);
-  
+
   return NextResponse.json({ quiz }, { status: 201 });
 }

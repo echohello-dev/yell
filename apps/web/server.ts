@@ -2,7 +2,11 @@ import { createServer } from 'http';
 import { parse } from 'url';
 import next from 'next';
 import { Server } from 'socket.io';
-import { calculateScore, calculateLeaderboard, selectRandomWinners } from '../../packages/shared/dist/utils.js';
+import {
+  calculateScore,
+  calculateLeaderboard,
+  selectRandomWinners,
+} from '../../packages/shared/dist/utils.js';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
@@ -31,8 +35,8 @@ app.prepare().then(() => {
   const io = new Server(httpServer, {
     cors: {
       origin: '*',
-      methods: ['GET', 'POST']
-    }
+      methods: ['GET', 'POST'],
+    },
   });
 
   // Socket.IO connection handling
@@ -42,7 +46,7 @@ app.prepare().then(() => {
     // Join session room
     socket.on('join:session', ({ sessionId, playerId, playerName, isHost }) => {
       socket.join(sessionId);
-      
+
       const session = sessions.get(sessionId);
       if (!session) {
         socket.emit('error', { message: 'Session not found' });
@@ -58,16 +62,16 @@ app.prepare().then(() => {
           score: 0,
           answers: [],
           reactions: [],
-          joinedAt: new Date()
+          joinedAt: new Date(),
         };
-        
+
         players.set(playerId, player);
         session.players.push(player);
-        
+
         // Notify all clients in the session
         io.to(sessionId).emit('player:joined', { player });
       }
-      
+
       socket.emit('session:joined', { session });
     });
 
@@ -78,7 +82,7 @@ app.prepare().then(() => {
         socket.emit('error', { message: 'Session not found' });
         return;
       }
-      
+
       session.status = 'started';
       io.to(sessionId).emit('session:started', { session });
     });
@@ -90,17 +94,17 @@ app.prepare().then(() => {
         socket.emit('error', { message: 'Session not found' });
         return;
       }
-      
+
       const quiz = quizzes.get(session.quizId);
       const question = quiz.questions[questionIndex];
-      
+
       session.currentQuestionIndex = questionIndex;
       session.status = 'question_active';
-      
+
       io.to(sessionId).emit('question:started', {
         question,
         questionIndex,
-        totalQuestions: quiz.questions.length
+        totalQuestions: quiz.questions.length,
       });
     });
 
@@ -108,20 +112,20 @@ app.prepare().then(() => {
     socket.on('answer:submit', ({ sessionId, playerId, questionId, answer, timeTaken }) => {
       const session = sessions.get(sessionId);
       const player = players.get(playerId);
-      
+
       if (!session || !player) {
         socket.emit('error', { message: 'Session or player not found' });
         return;
       }
-      
+
       const quiz = quizzes.get(session.quizId);
       const question = quiz.questions.find((q: any) => q.id === questionId);
-      
+
       if (!question) {
         socket.emit('error', { message: 'Question not found' });
         return;
       }
-      
+
       // Calculate if answer is correct
       let isCorrect = false;
       if (question.type === 'multiple_choice') {
@@ -131,29 +135,26 @@ app.prepare().then(() => {
         const correct = parseFloat(question.correctAnswer);
         isCorrect = Math.abs(numAnswer - correct) < 0.01;
       }
-      
+
       // Calculate score
-      const points = isCorrect ? calculateScore(
-        isCorrect,
-        question.timeLimit || 30,
-        timeTaken,
-        question.points || 1000
-      ) : 0;
-      
+      const points = isCorrect
+        ? calculateScore(isCorrect, question.timeLimit || 30, timeTaken, question.points || 1000)
+        : 0;
+
       // Store answer
       const answerObj = {
         questionId,
         answer,
         answeredAt: new Date(),
         isCorrect,
-        points
+        points,
       };
-      
+
       player.answers.push(answerObj);
       player.score += points;
-      
+
       socket.emit('answer:submitted', { isCorrect, points });
-      
+
       // Notify host of answer received (without revealing correctness to other players)
       io.to(sessionId).emit('answer:received', { playerId, playerName: player.name });
     });
@@ -165,15 +166,15 @@ app.prepare().then(() => {
         socket.emit('error', { message: 'Session not found' });
         return;
       }
-      
+
       session.status = 'question_results';
-      
+
       // Calculate leaderboard
       const leaderboard = calculateLeaderboard(session.players);
-      
+
       io.to(sessionId).emit('question:ended', {
         questionIndex,
-        leaderboard
+        leaderboard,
       });
     });
 
@@ -184,18 +185,18 @@ app.prepare().then(() => {
         socket.emit('error', { message: 'Player not found' });
         return;
       }
-      
+
       const reaction = {
         type,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      
+
       player.reactions.push(reaction);
-      
+
       io.to(sessionId).emit('reaction:sent', {
         playerId,
         playerName: player.name,
-        type
+        type,
       });
     });
 
@@ -206,13 +207,13 @@ app.prepare().then(() => {
         socket.emit('error', { message: 'Session not found' });
         return;
       }
-      
+
       session.status = 'ended';
       session.endedAt = new Date();
-      
+
       // Calculate final leaderboard
       const leaderboard = calculateLeaderboard(session.players);
-      
+
       // Determine winners based on prize mode
       let winners: any[] = [];
       if (session.prizeMode === 'top_score') {
@@ -222,11 +223,11 @@ app.prepare().then(() => {
       } else if (session.prizeMode === 'spin_wheel') {
         winners = selectRandomWinners(session.players, 1);
       }
-      
+
       io.to(sessionId).emit('session:ended', {
         leaderboard,
         winners,
-        prizeMode: session.prizeMode
+        prizeMode: session.prizeMode,
       });
     });
 
@@ -235,13 +236,11 @@ app.prepare().then(() => {
     });
   });
 
-
-
   // Make storage available to API routes
   global.storage = {
     sessions,
     players,
-    quizzes
+    quizzes,
   };
 
   httpServer

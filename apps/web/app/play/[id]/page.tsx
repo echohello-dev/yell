@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useSocket } from '@/hooks/useSocket';
 
@@ -20,9 +21,11 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
   const searchParams = useSearchParams();
   const playerId = searchParams.get('playerId');
   const playerName = searchParams.get('playerName');
-  
+
   const { socket, isConnected } = useSocket();
-  const [gameState, setGameState] = useState<'waiting' | 'question' | 'answered' | 'results' | 'ended'>('waiting');
+  const [gameState, setGameState] = useState<
+    'waiting' | 'question' | 'answered' | 'results' | 'ended'
+  >('waiting');
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<any>(null);
   const [questionStartTime, setQuestionStartTime] = useState<number>(0);
@@ -55,7 +58,7 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
         setFeedback({ isCorrect, points });
         setGameState('answered');
         if (isCorrect) {
-          setMyScore(prev => prev + points);
+          setMyScore((prev) => prev + points);
         }
       });
 
@@ -99,7 +102,7 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
         playerId,
         questionId: currentQuestion.id,
         answer: selectedAnswer,
-        timeTaken
+        timeTaken,
       });
       setGameState('answered');
     }
@@ -110,7 +113,7 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
       socket.emit('reaction:send', {
         sessionId,
         playerId,
-        type: 'thumbs_up'
+        type: 'thumbs_up',
       });
     }
   };
@@ -182,7 +185,9 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                   />
                   <div className="flex justify-between mt-2">
                     <span className="text-gray-600">{currentQuestion.scaleMin}</span>
-                    <span className="text-2xl font-bold text-purple-600">{selectedAnswer || currentQuestion.scaleMin}</span>
+                    <span className="text-2xl font-bold text-purple-600">
+                      {selectedAnswer || currentQuestion.scaleMin}
+                    </span>
                     <span className="text-gray-600">{currentQuestion.scaleMax}</span>
                   </div>
                 </div>
@@ -215,7 +220,9 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                   <div className={`text-6xl mb-4 ${feedback.isCorrect ? 'animate-bounce' : ''}`}>
                     {feedback.isCorrect ? '✅' : '❌'}
                   </div>
-                  <h2 className={`text-3xl font-bold mb-2 ${feedback.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                  <h2
+                    className={`text-3xl font-bold mb-2 ${feedback.isCorrect ? 'text-green-600' : 'text-red-600'}`}
+                  >
                     {feedback.isCorrect ? 'Correct!' : 'Incorrect'}
                   </h2>
                   {feedback.isCorrect && feedback.points && (
@@ -228,7 +235,7 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                   <p className="text-xl text-gray-600">Waiting for results...</p>
                 </>
               )}
-              
+
               <button
                 onClick={sendReaction}
                 className="mt-6 px-6 py-3 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 font-semibold text-lg shadow-lg"
@@ -246,7 +253,7 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                 <p className="text-4xl font-bold text-purple-600">#{myRank}</p>
                 <p className="text-xl text-gray-800">{myScore} points</p>
               </div>
-              
+
               <div className="space-y-2">
                 {leaderboard.slice(0, 10).map((entry: any) => (
                   <div
@@ -270,7 +277,7 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
           {gameState === 'ended' && (
             <div className="bg-white rounded-lg shadow-xl p-8 text-center">
               <h2 className="text-4xl font-bold text-gray-800 mb-4">Quiz Ended!</h2>
-              
+
               <div className="mb-6 p-6 bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg">
                 <p className="text-sm text-gray-600 mb-2">Final Position</p>
                 <p className="text-6xl font-bold text-purple-600 mb-2">#{myRank}</p>
@@ -290,12 +297,12 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
 
               <div className="pt-6 border-t border-gray-200">
                 <p className="text-gray-600 mb-4">Thanks for playing!</p>
-                <a
+                <Link
                   href="/"
                   className="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold"
                 >
                   Play Another Quiz
-                </a>
+                </Link>
               </div>
             </div>
           )}
