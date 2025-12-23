@@ -7,14 +7,14 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:web": "cd apps/web && npm run dev",
-    "dev:mobile": "cd apps/mobile && npm start",
-    "build:web": "cd apps/web && npm run build",
-    "build:mobile": "cd apps/mobile && npm run build",
-    "lint": "npm run lint --workspaces",
-    "test": "npm run test --workspaces"
+    "dev:web": "cd apps/web && bun run dev",
+    "dev:mobile": "cd apps/mobile && bun start",
+    "build:web": "cd apps/web && bun run build",
+    "build:mobile": "cd apps/mobile && bun run build",
+    "lint": "bun run --workspaces --if-present lint",
+    "test": "bun run --workspaces --if-present test"
   },
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3"
   }
 }

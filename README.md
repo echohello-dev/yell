@@ -42,8 +42,8 @@ yell/
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+- Node.js 24+ 
+- bun
 - For mobile development: Expo CLI
 
 ### Installation

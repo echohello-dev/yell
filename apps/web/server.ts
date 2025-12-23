@@ -19,7 +19,7 @@ const quizzes = new Map<string, any>();
 app.prepare().then(() => {
   const httpServer = createServer(async (req, res) => {
     try {
-      const parsedUrl = parse(req.url, true);
+      const parsedUrl = parse(req.url ?? '/', true);
       await handle(req, res, parsedUrl);
     } catch (err) {
       console.error('Error occurred handling', req.url, err);
@@ -115,7 +115,7 @@ app.prepare().then(() => {
       }
       
       const quiz = quizzes.get(session.quizId);
-      const question = quiz.questions.find(q => q.id === questionId);
+      const question = quiz.questions.find((q: any) => q.id === questionId);
       
       if (!question) {
         socket.emit('error', { message: 'Question not found' });
@@ -214,7 +214,7 @@ app.prepare().then(() => {
       const leaderboard = calculateLeaderboard(session.players);
       
       // Determine winners based on prize mode
-      let winners = [];
+      let winners: any[] = [];
       if (session.prizeMode === 'top_score') {
         winners = leaderboard.slice(0, 3);
       } else if (session.prizeMode === 'random_raffle') {

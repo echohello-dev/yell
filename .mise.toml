@@ -1,6 +1,42 @@
 [tools]
-node = "20"
+node = "24"
 bun = "latest"
 
 [env]
 NODE_ENV = "development"
+
+[tasks.install]
+run = "bun install"
+description = "Install dependencies"
+
+[tasks.lint]
+run = "bun run lint"
+description = "Run linting"
+
+[tasks.test]
+run = "bun run test"
+description = "Run tests"
+
+[tasks.build]
+run = "bun run build:web && bun run build:mobile"
+description = "Build web and mobile apps"
+
+[tasks."dev:web"]
+run = "bun run dev:web"
+description = "Run web dev server"
+
+[tasks."dev:mobile"]
+run = "bun run dev:mobile"
+description = "Run Expo dev server"
+
+[tasks."build:web"]
+run = "bun run build:web"
+description = "Build web app"
+
+[tasks."build:mobile"]
+run = "bun run build:mobile"
+description = "Build mobile app"
+
+[tasks."build:shared"]
+run = "cd packages/shared && bun run build"
+description = "Build shared package"

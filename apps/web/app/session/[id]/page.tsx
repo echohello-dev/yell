@@ -40,7 +40,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [showResults, setShowResults] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (socket && isConnected) {
@@ -73,7 +73,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
       socket.on('question:ended', ({ leaderboard: newLeaderboard }) => {
         setLeaderboard(newLeaderboard);
         setShowResults(true);
-        if (timerRef.current) {
+        if (timerRef.current !== null) {
           clearInterval(timerRef.current);
         }
       });
@@ -104,7 +104,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
         setTimeRemaining(remaining);
         
         if (remaining === 0) {
-          if (timerRef.current) {
+          if (timerRef.current !== null) {
             clearInterval(timerRef.current);
           }
         }
