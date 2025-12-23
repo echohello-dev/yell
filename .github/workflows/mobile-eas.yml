@@ -1,0 +1,87 @@
+name: Mobile Publish (EAS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: What to run (build, submit, build_and_submit, update)
+        required: true
+        default: build
+        type: choice
+        options:
+          - build
+          - submit
+          - build_and_submit
+          - update
+      platform:
+        description: Platform
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - android
+          - ios
+      profile:
+        description: EAS profile (from eas.json if present)
+        required: true
+        default: production
+        type: choice
+        options:
+          - production
+          - preview
+
+jobs:
+  eas:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Verify Expo token
+        env:
+          EXPO_TOKEN: ${{ secrets['EXPO_TOKEN'] }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "Missing EXPO_TOKEN secret. Create an Expo access token and add it to repo secrets." >&2
+            exit 1
+          fi
+
+      - name: Run EAS
+        working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets['EXPO_TOKEN'] }}
+          EXPO_NO_TELEMETRY: '1'
+        run: |
+          bunx eas-cli@latest --version
+
+          ACTION="${{ inputs.action }}"
+          PLATFORM="${{ inputs.platform }}"
+          PROFILE="${{ inputs.profile }}"
+
+          if [ "$ACTION" = "build" ]; then
+            bunx eas-cli@latest build --platform "$PLATFORM" --profile "$PROFILE" --non-interactive
+          elif [ "$ACTION" = "submit" ]; then
+            bunx eas-cli@latest submit --platform "$PLATFORM" --profile "$PROFILE" --latest --non-interactive
+          elif [ "$ACTION" = "build_and_submit" ]; then
+            bunx eas-cli@latest build --platform "$PLATFORM" --profile "$PROFILE" --non-interactive
+            bunx eas-cli@latest submit --platform "$PLATFORM" --profile "$PROFILE" --latest --non-interactive
+          elif [ "$ACTION" = "update" ]; then
+            bunx eas-cli@latest update --auto --non-interactive
+          else
+            echo "Unknown action: $ACTION" >&2
+            exit 1
+          fi
