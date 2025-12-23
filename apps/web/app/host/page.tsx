@@ -28,14 +28,16 @@ export default function HostPage() {
     title: '',
     timeLimit: 30,
     points: 1000,
-    options: ['', '']
+    options: ['', ''],
   });
-  const [prizeMode, setPrizeMode] = useState<'none' | 'top_score' | 'random_raffle' | 'spin_wheel'>('top_score');
+  const [prizeMode, setPrizeMode] = useState<'none' | 'top_score' | 'random_raffle' | 'spin_wheel'>(
+    'top_score',
+  );
 
   const addOption = () => {
     setCurrentQuestion({
       ...currentQuestion,
-      options: [...(currentQuestion.options || []), '']
+      options: [...(currentQuestion.options || []), ''],
     });
   };
 
@@ -66,7 +68,7 @@ export default function HostPage() {
       correctAnswer: currentQuestion.correctAnswer,
       scaleMin: currentQuestion.scaleMin,
       scaleMax: currentQuestion.scaleMax,
-      scaleLabels: currentQuestion.scaleLabels
+      scaleLabels: currentQuestion.scaleLabels,
     };
 
     setQuestions([...questions, question]);
@@ -75,7 +77,7 @@ export default function HostPage() {
       title: '',
       timeLimit: 30,
       points: 1000,
-      options: ['', '']
+      options: ['', ''],
     });
   };
 
@@ -96,8 +98,8 @@ export default function HostPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: quizTitle,
-          questions
-        })
+          questions,
+        }),
       });
 
       const { quiz } = await quizRes.json();
@@ -108,8 +110,8 @@ export default function HostPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           quizId: quiz.id,
-          prizeMode
-        })
+          prizeMode,
+        }),
       });
 
       const { session } = await sessionRes.json();
@@ -161,13 +163,17 @@ export default function HostPage() {
 
         {questions.length > 0 && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Questions ({questions.length})</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Questions ({questions.length})
+            </h2>
             <div className="space-y-4">
               {questions.map((q, index) => (
                 <div key={q.id} className="border rounded-lg p-4 bg-gray-50">
                   <div className="flex justify-between items-start">
                     <div>
-                      <span className="text-sm font-semibold text-purple-600 uppercase">{q.type.replace('_', ' ')}</span>
+                      <span className="text-sm font-semibold text-purple-600 uppercase">
+                        {q.type.replace('_', ' ')}
+                      </span>
                       <p className="font-semibold text-gray-800 mt-1">{q.title}</p>
                       <p className="text-sm text-gray-600 mt-1">
                         {q.timeLimit}s • {q.points} points
@@ -194,7 +200,16 @@ export default function HostPage() {
               <label className="block text-gray-700 font-semibold mb-2">Question Type</label>
               <select
                 value={currentQuestion.type}
-                onChange={(e) => setCurrentQuestion({ ...currentQuestion, type: e.target.value as QuestionType, options: e.target.value === 'multiple_choice' || e.target.value === 'poll' ? ['', ''] : undefined })}
+                onChange={(e) =>
+                  setCurrentQuestion({
+                    ...currentQuestion,
+                    type: e.target.value as QuestionType,
+                    options:
+                      e.target.value === 'multiple_choice' || e.target.value === 'poll'
+                        ? ['', '']
+                        : undefined,
+                  })
+                }
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 <option value="multiple_choice">Multiple Choice</option>
@@ -217,11 +232,15 @@ export default function HostPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Time Limit (seconds)</label>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Time Limit (seconds)
+                </label>
                 <input
                   type="number"
                   value={currentQuestion.timeLimit}
-                  onChange={(e) => setCurrentQuestion({ ...currentQuestion, timeLimit: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setCurrentQuestion({ ...currentQuestion, timeLimit: parseInt(e.target.value) })
+                  }
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
@@ -230,7 +249,9 @@ export default function HostPage() {
                 <input
                   type="number"
                   value={currentQuestion.points}
-                  onChange={(e) => setCurrentQuestion({ ...currentQuestion, points: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setCurrentQuestion({ ...currentQuestion, points: parseInt(e.target.value) })
+                  }
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
@@ -270,12 +291,19 @@ export default function HostPage() {
                     <label className="block text-gray-700 font-semibold mb-2">Correct Answer</label>
                     <select
                       value={currentQuestion.correctAnswer}
-                      onChange={(e) => setCurrentQuestion({ ...currentQuestion, correctAnswer: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        setCurrentQuestion({
+                          ...currentQuestion,
+                          correctAnswer: parseInt(e.target.value),
+                        })
+                      }
                       className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                     >
                       <option value="">Select correct answer...</option>
                       {currentQuestion.options?.map((_, index) => (
-                        <option key={index} value={index}>Option {index + 1}</option>
+                        <option key={index} value={index}>
+                          Option {index + 1}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -290,7 +318,9 @@ export default function HostPage() {
                   <input
                     type="number"
                     value={currentQuestion.scaleMin}
-                    onChange={(e) => setCurrentQuestion({ ...currentQuestion, scaleMin: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setCurrentQuestion({ ...currentQuestion, scaleMin: parseInt(e.target.value) })
+                    }
                     placeholder="e.g., 1"
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
@@ -300,7 +330,9 @@ export default function HostPage() {
                   <input
                     type="number"
                     value={currentQuestion.scaleMax}
-                    onChange={(e) => setCurrentQuestion({ ...currentQuestion, scaleMax: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setCurrentQuestion({ ...currentQuestion, scaleMax: parseInt(e.target.value) })
+                    }
                     placeholder="e.g., 10"
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
@@ -314,7 +346,9 @@ export default function HostPage() {
                 <input
                   type="number"
                   value={currentQuestion.correctAnswer}
-                  onChange={(e) => setCurrentQuestion({ ...currentQuestion, correctAnswer: e.target.value })}
+                  onChange={(e) =>
+                    setCurrentQuestion({ ...currentQuestion, correctAnswer: e.target.value })
+                  }
                   placeholder="Enter the correct numeric answer..."
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />

@@ -99,7 +99,7 @@ export default function App() {
           sessionId: data.session.id,
           playerId: newPlayerId,
           playerName,
-          isHost: false
+          isHost: false,
         });
       });
 
@@ -120,7 +120,7 @@ export default function App() {
         setFeedback({ isCorrect, points });
         setGameState('answered');
         if (isCorrect) {
-          setMyScore(prev => prev + points);
+          setMyScore((prev) => prev + points);
         }
       });
 
@@ -157,7 +157,7 @@ export default function App() {
         playerId,
         questionId: currentQuestion.id,
         answer: selectedAnswer,
-        timeTaken
+        timeTaken,
       });
       setGameState('answered');
     }
@@ -168,7 +168,7 @@ export default function App() {
       socket.emit('reaction:send', {
         sessionId,
         playerId,
-        type: 'thumbs_up'
+        type: 'thumbs_up',
       });
     }
   };
@@ -178,17 +178,11 @@ export default function App() {
       <Text style={styles.logo}>Yell</Text>
       <Text style={styles.subtitle}>Interactive Live Quizzes</Text>
 
-      <TouchableOpacity
-        style={styles.primaryButton}
-        onPress={() => setScreen('join')}
-      >
+      <TouchableOpacity style={styles.primaryButton} onPress={() => setScreen('join')}>
         <Text style={styles.buttonText}>Join with Code</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.secondaryButton}
-        onPress={requestCameraPermission}
-      >
+      <TouchableOpacity style={styles.secondaryButton} onPress={requestCameraPermission}>
         <Text style={styles.buttonTextSecondary}>Scan QR Code</Text>
       </TouchableOpacity>
     </View>
@@ -218,10 +212,7 @@ export default function App() {
         <Text style={styles.buttonText}>Join Quiz</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.linkButton}
-        onPress={() => setScreen('home')}
-      >
+      <TouchableOpacity style={styles.linkButton} onPress={() => setScreen('home')}>
         <Text style={styles.linkText}>← Back</Text>
       </TouchableOpacity>
     </View>
@@ -276,14 +267,16 @@ export default function App() {
                     key={index}
                     style={[
                       styles.optionButton,
-                      selectedAnswer === index && styles.optionButtonSelected
+                      selectedAnswer === index && styles.optionButtonSelected,
                     ]}
                     onPress={() => setSelectedAnswer(index)}
                   >
-                    <Text style={[
-                      styles.optionText,
-                      selectedAnswer === index && styles.optionTextSelected
-                    ]}>
+                    <Text
+                      style={[
+                        styles.optionText,
+                        selectedAnswer === index && styles.optionTextSelected,
+                      ]}
+                    >
                       {option}
                     </Text>
                   </TouchableOpacity>

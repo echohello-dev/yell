@@ -3,7 +3,7 @@ export enum QuestionType {
   MULTIPLE_CHOICE = 'multiple_choice',
   POLL = 'poll',
   SCALE = 'scale',
-  NUMERIC_GUESS = 'numeric_guess'
+  NUMERIC_GUESS = 'numeric_guess',
 }
 
 export interface Question {
@@ -48,7 +48,7 @@ export enum SessionStatus {
   STARTED = 'started',
   QUESTION_ACTIVE = 'question_active',
   QUESTION_RESULTS = 'question_results',
-  ENDED = 'ended'
+  ENDED = 'ended',
 }
 
 // Player Types
@@ -72,7 +72,7 @@ export interface Answer {
 
 // Reaction Types
 export enum ReactionType {
-  THUMBS_UP = 'thumbs_up'
+  THUMBS_UP = 'thumbs_up',
 }
 
 export interface Reaction {
@@ -93,7 +93,7 @@ export enum PrizeMode {
   TOP_SCORE = 'top_score',
   RANDOM_RAFFLE = 'random_raffle',
   SPIN_WHEEL = 'spin_wheel',
-  NONE = 'none'
+  NONE = 'none',
 }
 
 export interface PrizeWinner {
@@ -108,26 +108,26 @@ export enum WSEventType {
   SESSION_CREATED = 'session:created',
   SESSION_STARTED = 'session:started',
   SESSION_ENDED = 'session:ended',
-  
+
   // Player events
   PLAYER_JOINED = 'player:joined',
   PLAYER_LEFT = 'player:left',
-  
+
   // Question events
   QUESTION_STARTED = 'question:started',
   QUESTION_ENDED = 'question:ended',
-  
+
   // Answer events
   ANSWER_SUBMITTED = 'answer:submitted',
-  
+
   // Reaction events
   REACTION_SENT = 'reaction:sent',
-  
+
   // Leaderboard events
   LEADERBOARD_UPDATED = 'leaderboard:updated',
-  
+
   // Prize events
-  PRIZE_WINNER_SELECTED = 'prize:winner_selected'
+  PRIZE_WINNER_SELECTED = 'prize:winner_selected',
 }
 
 export interface WSEvent<T = any> {
@@ -150,7 +150,7 @@ export interface User {
 export enum UserTier {
   FREE = 'free',
   PREMIUM = 'premium',
-  ENTERPRISE = 'enterprise'
+  ENTERPRISE = 'enterprise',
 }
 
 export interface SessionHistory {
@@ -193,7 +193,7 @@ export const TIER_LIMITS = {
     maxSessionsPerMonth: 5,
     sessionHistoryDays: 7,
     analytics: false,
-    branding: false
+    branding: false,
   },
   [UserTier.PREMIUM]: {
     maxPlayersPerSession: 500,
@@ -201,7 +201,7 @@ export const TIER_LIMITS = {
     maxSessionsPerMonth: -1, // unlimited
     sessionHistoryDays: 365,
     analytics: true,
-    branding: true
+    branding: true,
   },
   [UserTier.ENTERPRISE]: {
     maxPlayersPerSession: -1, // unlimited
@@ -209,6 +209,6 @@ export const TIER_LIMITS = {
     maxSessionsPerMonth: -1, // unlimited
     sessionHistoryDays: -1, // unlimited
     analytics: true,
-    branding: true
-  }
+    branding: true,
+  },
 };
