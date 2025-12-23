@@ -85,6 +85,7 @@ cd packages/shared && bun run build
 - Prefer small, surgical PRs.
 - Don’t reformat unrelated files.
 - Avoid introducing new heavy deps unless needed.
+- When adding/modifying features, keep relevant docs in `./docs` up to date.
 
 ## Infra notes: Cloudflare Tunnel ↔ Traefik
 
