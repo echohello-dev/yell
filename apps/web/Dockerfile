@@ -11,7 +11,7 @@ COPY apps/mobile/package.json apps/mobile/package.json
 COPY packages/shared/package.json packages/shared/package.json
 
 RUN apt-get update \
-	&& apt-get install -y --no-install-recommends ca-certificates curl \
+	&& apt-get install -y --no-install-recommends ca-certificates curl unzip \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& curl -fsSL https://bun.sh/install | bash
 
@@ -32,7 +32,7 @@ ENV BUN_INSTALL=/opt/bun
 ENV PATH=$BUN_INSTALL/bin:$PATH
 
 RUN apt-get update \
-	&& apt-get install -y --no-install-recommends ca-certificates curl \
+	&& apt-get install -y --no-install-recommends ca-certificates curl unzip \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& curl -fsSL https://bun.sh/install | bash
 
