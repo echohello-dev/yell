@@ -1,8 +1,14 @@
 {
   "expo": {
     "name": "mobile",
-    "slug": "mobile",
+    "slug": "yell",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6aed575b-f2b2-4a2f-bf91-bc54490bdeaf"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

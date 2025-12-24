@@ -7,6 +7,12 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "eas:login": "bunx eas-cli login",
+    "eas:whoami": "bunx eas-cli whoami",
+    "eas:update": "bunx eas-cli update",
+    "eas:build:preview": "bunx eas-cli build --profile preview",
+    "eas:build:production": "bunx eas-cli build --profile production",
+    "eas:submit:production": "bunx eas-cli submit --profile production",
     "build": "expo export --platform android --output-dir dist/android && expo export --platform ios --output-dir dist/ios",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
@@ -16,6 +22,7 @@
     "expo-barcode-scanner": "~13.0.1",
     "expo-camera": "~17.0.10",
     "expo-status-bar": "~3.0.9",
+    "expo-updates": "~29.0.15",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "socket.io-client": "^4.8.1"
