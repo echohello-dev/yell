@@ -31,6 +31,9 @@ on:
           - production
           - preview
 
+permissions:
+  contents: read
+
 jobs:
   eas:
     runs-on: ubuntu-latest
