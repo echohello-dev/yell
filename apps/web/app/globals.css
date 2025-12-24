@@ -1,26 +1,137 @@
 @import 'tailwindcss';
 
+/*
+  Yell design tokens
+  - Semantic (bg/surface/border/text)
+  - Brand (ink + confident blue accent)
+  - Motion (150–220ms)
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand */
+  --ink: #0b0f19;
+  --accent: #2563eb;
+  --accent-2: #1d4ed8;
+
+  /* RGB versions for alpha gradients */
+  --ink-rgb: 11 15 25;
+  --accent-rgb: 37 99 235;
+  --accent-2-rgb: 29 78 216;
+
+  /* Light theme semantics */
+  --bg: #ffffff;
+  --fg: var(--ink);
+  --muted: rgba(var(--ink-rgb) / 0.7);
+  --subtle: rgba(var(--ink-rgb) / 0.58);
+  --surface: rgba(var(--ink-rgb) / 0.03);
+  --surface-2: rgba(var(--ink-rgb) / 0.06);
+  --border: rgba(var(--ink-rgb) / 0.12);
+  --ring: rgba(var(--accent-rgb) / 0.55);
+
+  /* Motion */
+  --dur-quick: 150ms;
+  --dur-ui: 180ms;
+  --dur-slow: 220ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: var(--ink);
+    --fg: rgba(255 255 255 / 0.92);
+    --muted: rgba(255 255 255 / 0.72);
+    --subtle: rgba(255 255 255 / 0.6);
+    --surface: rgba(255 255 255 / 0.06);
+    --surface-2: rgba(255 255 255 / 0.1);
+    --border: rgba(255 255 255 / 0.16);
+    --ring: rgba(var(--accent-rgb) / 0.6);
+
+    /* Slightly brighter accent in dark */
+    --accent: #60a5fa;
+    --accent-rgb: 96 165 250;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: var(--ink);
+  --fg: rgba(255 255 255 / 0.92);
+  --muted: rgba(255 255 255 / 0.72);
+  --subtle: rgba(255 255 255 / 0.6);
+  --surface: rgba(255 255 255 / 0.06);
+  --surface-2: rgba(255 255 255 / 0.1);
+  --border: rgba(255 255 255 / 0.16);
+  --ring: rgba(var(--accent-rgb) / 0.6);
+
+  --accent: #60a5fa;
+  --accent-rgb: 96 165 250;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Semantic colors (Tailwind: bg-bg, text-fg, border-border, etc.) */
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-ring: var(--ring);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+  letter-spacing: -0.01em;
+}
+
+:root {
+  /* Brand type: relies on the font being installed or provided by the environment. */
+  --font-brand: 'BBH Hegarty', var(--font-sans), ui-sans-serif, system-ui;
+}
+
+.yell-brand {
+  font-family: var(--font-brand);
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: rgb(var(--accent-rgb) / 0.22);
+}
+
+.yell-ambient {
+  background: var(--bg);
+}
+
+.yell-card {
+  background: color-mix(in srgb, var(--bg) 86%, var(--surface-2));
+  border: 1px solid var(--border);
+  box-shadow:
+    0 1px 0 rgb(var(--ink-rgb) / 0.04),
+    0 18px 60px rgb(var(--ink-rgb) / 0.08);
+}
+
+.yell-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+.yell-transition {
+  transition:
+    transform var(--dur-ui) var(--ease-out),
+    box-shadow var(--dur-ui) var(--ease-out),
+    background-color var(--dur-ui) var(--ease-out),
+    border-color var(--dur-ui) var(--ease-out),
+    color var(--dur-ui) var(--ease-out),
+    opacity var(--dur-ui) var(--ease-out);
 }

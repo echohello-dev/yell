@@ -412,12 +412,14 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 64,
     fontWeight: 'bold',
+    fontFamily: 'BBH Hegarty',
     color: 'white',
     marginBottom: 10,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
+    fontFamily: 'BBH Hegarty',
     color: 'white',
     marginBottom: 10,
     textAlign: 'center',
