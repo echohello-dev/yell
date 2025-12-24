@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+import { BrandMark } from '../../components/BrandMark';
+
 type QuestionType = 'multiple_choice' | 'poll' | 'scale' | 'numeric_guess';
 
 interface Question {
@@ -125,253 +127,324 @@ export default function HostPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">Create a Quiz</h1>
-            <Link href="/" className="text-purple-600 hover:text-purple-800">
-              ← Back to Home
-            </Link>
-          </div>
+    <div className="min-h-screen bg-bg">
+      <div className="mx-auto max-w-5xl px-6 py-12 sm:py-16">
+        <header className="flex items-center justify-between gap-6">
+          <BrandMark size="md" tagline="Host" />
+          <Link href="/" className="yell-transition text-sm text-muted hover:text-fg">
+            ← Home
+          </Link>
+        </header>
 
-          <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2">Quiz Title</label>
-            <input
-              type="text"
-              value={quizTitle}
-              onChange={(e) => setQuizTitle(e.target.value)}
-              placeholder="Enter quiz title..."
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
+        <div className="mt-10 flex items-end justify-between gap-6">
+          <div>
+            <h1 className="yell-brand text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
+              Create a quiz
+            </h1>
+            <p className="mt-2 text-subtle">
+              Write questions, start a session, then share the pin.
+            </p>
           </div>
-
-          <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2">Prize Mode</label>
-            <select
-              value={prizeMode}
-              onChange={(e) => setPrizeMode(e.target.value as any)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              <option value="none">No Prizes</option>
-              <option value="top_score">Top Score</option>
-              <option value="random_raffle">Random Raffle</option>
-              <option value="spin_wheel">Spin Wheel</option>
-            </select>
+          <div className="hidden sm:block text-right text-sm text-muted">
+            {questions.length} question{questions.length === 1 ? '' : 's'}
           </div>
         </div>
 
-        {questions.length > 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
-              Questions ({questions.length})
-            </h2>
-            <div className="space-y-4">
-              {questions.map((q, index) => (
-                <div key={q.id} className="border rounded-lg p-4 bg-gray-50">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-sm font-semibold text-purple-600 uppercase">
-                        {q.type.replace('_', ' ')}
-                      </span>
-                      <p className="font-semibold text-gray-800 mt-1">{q.title}</p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {q.timeLimit}s • {q.points} points
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => removeQuestion(index)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <main className="mt-10 grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6 items-start">
+          <section className="yell-card rounded-3xl p-7">
+            <div className="text-sm font-semibold tracking-wide text-muted">Quiz settings</div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Add Question</h2>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">Question Type</label>
-              <select
-                value={currentQuestion.type}
-                onChange={(e) =>
-                  setCurrentQuestion({
-                    ...currentQuestion,
-                    type: e.target.value as QuestionType,
-                    options:
-                      e.target.value === 'multiple_choice' || e.target.value === 'poll'
-                        ? ['', '']
-                        : undefined,
-                  })
-                }
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                <option value="multiple_choice">Multiple Choice</option>
-                <option value="poll">Poll</option>
-                <option value="scale">Scale</option>
-                <option value="numeric_guess">Numeric Guess</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">Question</label>
+            <div className="mt-6">
+              <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+                Quiz title
+              </label>
               <input
                 type="text"
-                value={currentQuestion.title}
-                onChange={(e) => setCurrentQuestion({ ...currentQuestion, title: e.target.value })}
-                placeholder="Enter your question..."
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                value={quizTitle}
+                onChange={(e) => setQuizTitle(e.target.value)}
+                placeholder="e.g., Winter trivia night"
+                className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4 text-lg font-semibold tracking-tight placeholder:text-subtle"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">
-                  Time Limit (seconds)
-                </label>
-                <input
-                  type="number"
-                  value={currentQuestion.timeLimit}
-                  onChange={(e) =>
-                    setCurrentQuestion({ ...currentQuestion, timeLimit: parseInt(e.target.value) })
-                  }
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Points</label>
-                <input
-                  type="number"
-                  value={currentQuestion.points}
-                  onChange={(e) =>
-                    setCurrentQuestion({ ...currentQuestion, points: parseInt(e.target.value) })
-                  }
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
+            <div className="mt-6">
+              <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+                Prize mode
+              </label>
+              <select
+                value={prizeMode}
+                onChange={(e) => setPrizeMode(e.target.value as any)}
+                className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4"
+              >
+                <option value="none">No prizes</option>
+                <option value="top_score">Top score</option>
+                <option value="random_raffle">Random raffle</option>
+                <option value="spin_wheel">Spin wheel</option>
+              </select>
+              <div className="mt-3 text-sm text-subtle">You can change prizes per session.</div>
             </div>
 
-            {(currentQuestion.type === 'multiple_choice' || currentQuestion.type === 'poll') && (
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Options</label>
-                {currentQuestion.options?.map((option, index) => (
-                  <div key={index} className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={option}
-                      onChange={(e) => updateOption(index, e.target.value)}
-                      placeholder={`Option ${index + 1}`}
-                      className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                    {currentQuestion.options && currentQuestion.options.length > 2 && (
-                      <button
-                        onClick={() => removeOption(index)}
-                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  onClick={addOption}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-                >
-                  Add Option
-                </button>
+            <div className="mt-8">
+              <button
+                onClick={startQuiz}
+                disabled={!quizTitle || questions.length === 0}
+                className="yell-focus-ring yell-transition w-full rounded-2xl px-6 py-4 text-white font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: 'var(--accent)' }}
+              >
+                Start session
+              </button>
+              <div className="mt-3 text-sm text-subtle">
+                Generates a pin and opens your host control screen.
+              </div>
+            </div>
+          </section>
 
-                {currentQuestion.type === 'multiple_choice' && (
-                  <div className="mt-4">
-                    <label className="block text-gray-700 font-semibold mb-2">Correct Answer</label>
-                    <select
+          <section className="space-y-6">
+            {questions.length > 0 && (
+              <div className="yell-card rounded-3xl p-7">
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-xl font-semibold tracking-tight">Questions</h2>
+                  <div className="text-sm text-muted">{questions.length} total</div>
+                </div>
+                <div className="mt-5 space-y-3">
+                  {questions.map((q, index) => (
+                    <div
+                      key={q.id}
+                      className="rounded-2xl border border-border bg-surface px-5 py-4"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <div className="text-xs font-semibold tracking-wide text-muted uppercase">
+                            {q.type.replace('_', ' ')}
+                          </div>
+                          <div className="mt-1 font-semibold tracking-tight">{q.title}</div>
+                          <div className="mt-2 text-sm text-subtle">
+                            {q.timeLimit}s • {q.points} pts
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removeQuestion(index)}
+                          className="yell-transition text-sm font-semibold text-red-600 hover:opacity-80"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="yell-card rounded-3xl p-7">
+              <h2 className="text-xl font-semibold tracking-tight">Add question</h2>
+
+              <div className="mt-6 space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+                    Question type
+                  </label>
+                  <select
+                    value={currentQuestion.type}
+                    onChange={(e) =>
+                      setCurrentQuestion({
+                        ...currentQuestion,
+                        type: e.target.value as QuestionType,
+                        options:
+                          e.target.value === 'multiple_choice' || e.target.value === 'poll'
+                            ? ['', '']
+                            : undefined,
+                      })
+                    }
+                    className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4"
+                  >
+                    <option value="multiple_choice">Multiple choice</option>
+                    <option value="poll">Poll</option>
+                    <option value="scale">Scale</option>
+                    <option value="numeric_guess">Numeric guess</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+                    Prompt
+                  </label>
+                  <input
+                    type="text"
+                    value={currentQuestion.title}
+                    onChange={(e) =>
+                      setCurrentQuestion({ ...currentQuestion, title: e.target.value })
+                    }
+                    placeholder="Enter your question…"
+                    className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4 placeholder:text-subtle"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+                      Time limit
+                    </label>
+                    <input
+                      type="number"
+                      value={currentQuestion.timeLimit}
+                      onChange={(e) =>
+                        setCurrentQuestion({
+                          ...currentQuestion,
+                          timeLimit: parseInt(e.target.value),
+                        })
+                      }
+                      className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+                      Points
+                    </label>
+                    <input
+                      type="number"
+                      value={currentQuestion.points}
+                      onChange={(e) =>
+                        setCurrentQuestion({
+                          ...currentQuestion,
+                          points: parseInt(e.target.value),
+                        })
+                      }
+                      className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4"
+                    />
+                  </div>
+                </div>
+
+                {(currentQuestion.type === 'multiple_choice' ||
+                  currentQuestion.type === 'poll') && (
+                  <div>
+                    <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+                      Options
+                    </label>
+                    <div className="space-y-2">
+                      {currentQuestion.options?.map((option, index) => (
+                        <div key={index} className="flex gap-2">
+                          <input
+                            type="text"
+                            value={option}
+                            onChange={(e) => updateOption(index, e.target.value)}
+                            placeholder={`Option ${index + 1}`}
+                            className="yell-focus-ring yell-transition flex-1 rounded-2xl border border-border bg-bg px-5 py-3 placeholder:text-subtle"
+                          />
+                          {currentQuestion.options && currentQuestion.options.length > 2 && (
+                            <button
+                              onClick={() => removeOption(index)}
+                              className="yell-focus-ring yell-transition rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-red-600 hover:bg-surface-2"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-3 flex items-center gap-3">
+                      <button
+                        onClick={addOption}
+                        className="yell-focus-ring yell-transition rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold hover:bg-surface-2"
+                      >
+                        Add option
+                      </button>
+
+                      {currentQuestion.type === 'multiple_choice' && (
+                        <div className="flex-1">
+                          <select
+                            value={currentQuestion.correctAnswer}
+                            onChange={(e) =>
+                              setCurrentQuestion({
+                                ...currentQuestion,
+                                correctAnswer: parseInt(e.target.value),
+                              })
+                            }
+                            className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-3"
+                          >
+                            <option value="">Correct answer…</option>
+                            {currentQuestion.options?.map((_, index) => (
+                              <option key={index} value={index}>
+                                Option {index + 1}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {currentQuestion.type === 'scale' && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+                        Min
+                      </label>
+                      <input
+                        type="number"
+                        value={currentQuestion.scaleMin}
+                        onChange={(e) =>
+                          setCurrentQuestion({
+                            ...currentQuestion,
+                            scaleMin: parseInt(e.target.value),
+                          })
+                        }
+                        placeholder="e.g., 1"
+                        className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4 placeholder:text-subtle"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+                        Max
+                      </label>
+                      <input
+                        type="number"
+                        value={currentQuestion.scaleMax}
+                        onChange={(e) =>
+                          setCurrentQuestion({
+                            ...currentQuestion,
+                            scaleMax: parseInt(e.target.value),
+                          })
+                        }
+                        placeholder="e.g., 10"
+                        className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4 placeholder:text-subtle"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {currentQuestion.type === 'numeric_guess' && (
+                  <div>
+                    <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+                      Correct answer
+                    </label>
+                    <input
+                      type="number"
                       value={currentQuestion.correctAnswer}
                       onChange={(e) =>
                         setCurrentQuestion({
                           ...currentQuestion,
-                          correctAnswer: parseInt(e.target.value),
+                          correctAnswer: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                      <option value="">Select correct answer...</option>
-                      {currentQuestion.options?.map((_, index) => (
-                        <option key={index} value={index}>
-                          Option {index + 1}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Enter the correct numeric answer…"
+                      className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4 placeholder:text-subtle"
+                    />
                   </div>
                 )}
+
+                <button
+                  onClick={addQuestion}
+                  className="yell-focus-ring yell-transition w-full rounded-2xl px-6 py-4 text-white font-semibold"
+                  style={{ backgroundColor: 'var(--accent)' }}
+                >
+                  Add question
+                </button>
               </div>
-            )}
-
-            {currentQuestion.type === 'scale' && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-2">Min Value</label>
-                  <input
-                    type="number"
-                    value={currentQuestion.scaleMin}
-                    onChange={(e) =>
-                      setCurrentQuestion({ ...currentQuestion, scaleMin: parseInt(e.target.value) })
-                    }
-                    placeholder="e.g., 1"
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-2">Max Value</label>
-                  <input
-                    type="number"
-                    value={currentQuestion.scaleMax}
-                    onChange={(e) =>
-                      setCurrentQuestion({ ...currentQuestion, scaleMax: parseInt(e.target.value) })
-                    }
-                    placeholder="e.g., 10"
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
-              </div>
-            )}
-
-            {currentQuestion.type === 'numeric_guess' && (
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Correct Answer</label>
-                <input
-                  type="number"
-                  value={currentQuestion.correctAnswer}
-                  onChange={(e) =>
-                    setCurrentQuestion({ ...currentQuestion, correctAnswer: e.target.value })
-                  }
-                  placeholder="Enter the correct numeric answer..."
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-            )}
-
-            <button
-              onClick={addQuestion}
-              className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold"
-            >
-              Add Question
-            </button>
-          </div>
-        </div>
-
-        {questions.length > 0 && (
-          <button
-            onClick={startQuiz}
-            className="w-full px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg shadow-lg"
-          >
-            Start Quiz with {questions.length} Question{questions.length > 1 ? 's' : ''}
-          </button>
-        )}
+            </div>
+          </section>
+        </main>
       </div>
     </div>
   );
