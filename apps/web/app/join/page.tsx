@@ -1,15 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+
+import { BrandMark } from '../../components/BrandMark';
 
 export default function JoinPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [joinCode, setJoinCode] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const code = searchParams.get('code') || searchParams.get('joinCode');
+    if (code) setJoinCode(code.toLowerCase());
+  }, [searchParams]);
 
   const handleJoin = async () => {
     if (!joinCode || !playerName) {
@@ -50,60 +58,67 @@ export default function JoinPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-500 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
-        <div className="mb-6">
-          <Link href="/" className="text-purple-600 hover:text-purple-800 text-sm">
-            ← Back to Home
+    <div className="min-h-screen bg-bg flex items-center justify-center p-4">
+      <div className="max-w-md w-full yell-card rounded-3xl p-7 sm:p-9">
+        <div className="flex items-center justify-between gap-4">
+          <BrandMark size="sm" />
+          <Link href="/" className="yell-transition text-sm text-muted hover:text-fg">
+            ← Home
           </Link>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Join a Quiz</h1>
-        <p className="text-gray-600 mb-6">Enter the join code to participate</p>
+        <h1 className="yell-brand text-3xl font-black tracking-tight mt-8">Join</h1>
+        <p className="text-subtle mt-2">Enter the game pin, then your name.</p>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
-        )}
+        {error && <div className="mt-5 text-sm font-semibold text-red-600">{error}</div>}
 
-        <div className="space-y-4">
+        <div className="space-y-4 mt-7">
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Join Code</label>
+            <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+              Game Pin
+            </label>
             <input
               type="text"
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toLowerCase())}
               onKeyPress={handleKeyPress}
               placeholder="e.g., happy-tiger"
-              className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-center text-2xl font-bold lowercase"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4 text-center text-2xl font-bold lowercase placeholder:text-subtle"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Your Name</label>
+            <label className="block text-sm font-semibold tracking-wide text-muted mb-2">
+              Your Name
+            </label>
             <input
               type="text"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Enter your name"
-              className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="yell-focus-ring yell-transition w-full rounded-2xl border border-border bg-bg px-5 py-4 placeholder:text-subtle"
             />
           </div>
 
           <button
             onClick={handleJoin}
             disabled={loading}
-            className="w-full px-6 py-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-bold text-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="yell-focus-ring yell-transition w-full px-6 py-4 text-white rounded-2xl font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: 'var(--accent)' }}
           >
             {loading ? 'Joining...' : 'Join Quiz'}
           </button>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-center text-gray-600 text-sm mb-2">Or scan QR code with mobile app</p>
-          <p className="text-center text-purple-600 font-semibold">Available on iOS & Android</p>
+        <div className="mt-8 pt-6 border-t border-border">
+          <p className="text-center text-sm text-subtle mb-2">Prefer a scan?</p>
+          <p className="text-center text-sm font-semibold text-muted">
+            Use the mobile app QR join.
+          </p>
         </div>
       </div>
     </div>
