@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
@@ -19,30 +22,23 @@ jobs:
         target: [web, mobile]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+      - name: Setup mise
+        uses: jdx/mise-action@146a28175021df8ca24f8ee1828cc2a60f980bd5 # v3.5.1
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: mise run install
 
       - name: Build shared
-        run: bun run --cwd packages/shared build
+        run: mise run build:shared
 
       - name: Build web
         if: matrix.target == 'web'
-        run: bun run --cwd apps/web build
+        run: mise run build:web
 
       - name: Build mobile (Expo export)
         if: matrix.target == 'mobile'
         env:
           EXPO_NO_TELEMETRY: '1'
-        run: bun run --cwd apps/mobile build
+        run: mise run build:mobile

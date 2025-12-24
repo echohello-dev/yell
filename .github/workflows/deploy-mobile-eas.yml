@@ -1,0 +1,49 @@
+name: Deploy Mobile (EAS Update)
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-mobile-eas-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eas_update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@146a28175021df8ca24f8ee1828cc2a60f980bd5 # v3.5.1
+
+      - name: Install dependencies
+        run: mise run install
+
+      - name: Build shared
+        run: mise run build:shared
+
+      - name: Verify Expo token
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "Missing EXPO_TOKEN secret. Create an Expo access token and add it to repo secrets." >&2
+            exit 1
+          fi
+
+      - name: Publish update (EAS)
+        working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_TELEMETRY: '1'
+        run: |
+          bunx eas-cli@latest --version
+          bunx eas-cli@latest update --auto --non-interactive
