@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { BrandMark } from '../components/BrandMark';
 import { GamePinForm } from '../components/GamePinForm';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export default function Home() {
   return (
@@ -9,25 +10,26 @@ export default function Home() {
       <div className="mx-auto max-w-5xl px-6 py-14 sm:py-20">
         <header className="flex items-center justify-between gap-6">
           <BrandMark size="md" tagline="Live quiz platform" />
-          <nav className="hidden sm:flex items-center gap-2 text-sm text-muted">
+          <nav className="flex items-center gap-2 text-sm text-muted">
             <Link
               href="/demo"
-              className="yell-transition rounded-full px-4 py-2 hover:bg-surface-2"
+              className="hidden sm:block yell-transition rounded-full px-4 py-2 hover:bg-surface-2"
             >
               Demo
             </Link>
             <Link
               href="/host"
-              className="yell-transition rounded-full px-4 py-2 hover:bg-surface-2"
+              className="hidden sm:block yell-transition rounded-full px-4 py-2 hover:bg-surface-2"
             >
               Host
             </Link>
             <Link
               href="/join"
-              className="yell-transition rounded-full px-4 py-2 hover:bg-surface-2"
+              className="hidden sm:block yell-transition rounded-full px-4 py-2 hover:bg-surface-2"
             >
               Join
             </Link>
+            <ThemeToggle />
           </nav>
         </header>
 
@@ -57,8 +59,7 @@ export default function Home() {
                 <div className="mt-5 flex items-center gap-3">
                   <Link
                     href="/host"
-                    className="yell-focus-ring yell-transition inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white"
-                    style={{ backgroundColor: 'var(--accent)' }}
+                    className="yell-focus-ring yell-transition inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-accent text-black"
                   >
                     Create a quiz
                   </Link>

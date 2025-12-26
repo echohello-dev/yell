@@ -1,22 +1,28 @@
 @import 'tailwindcss';
 
 /*
-  Yell design tokens
-  - Semantic (bg/surface/border/text)
-  - Brand (ink + confident blue accent)
-  - Motion (150–220ms)
+  YELL Design System
+  - Kahoot-style quiz game
+  - Electric yellow accent
+  - Dark mode with toggle
 */
 
 :root {
-  /* Brand */
-  --ink: #0b0f19;
-  --accent: #f97316;
-  --accent-2: #ea580c;
+  /* Brand - Electric Yellow */
+  --accent: #ffe500;
+  --accent-2: #ffd000;
+  --accent-rgb: 255 229 0;
+  --accent-2-rgb: 255 208 0;
 
-  /* RGB versions for alpha gradients */
+  /* Answer colors (Kahoot-style) */
+  --answer-red: #e21b3c;
+  --answer-blue: #1368ce;
+  --answer-gold: #d89e00;
+  --answer-green: #26890c;
+
+  /* Base colors */
+  --ink: #0b0f19;
   --ink-rgb: 11 15 25;
-  --accent-rgb: 249 115 22;
-  --accent-2-rgb: 234 88 12;
 
   /* Light theme semantics */
   --bg: #ffffff;
@@ -35,6 +41,19 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Dark mode */
+:root[data-theme='dark'] {
+  --bg: var(--ink);
+  --fg: rgba(255 255 255 / 0.92);
+  --muted: rgba(255 255 255 / 0.72);
+  --subtle: rgba(255 255 255 / 0.6);
+  --surface: rgba(255 255 255 / 0.06);
+  --surface-2: rgba(255 255 255 / 0.1);
+  --border: rgba(255 255 255 / 0.16);
+  --ring: rgba(var(--accent-rgb) / 0.6);
+}
+
+/* System preference dark mode */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --bg: var(--ink);
@@ -45,33 +64,10 @@
     --surface-2: rgba(255 255 255 / 0.1);
     --border: rgba(255 255 255 / 0.16);
     --ring: rgba(var(--accent-rgb) / 0.6);
-
-    /* Slightly brighter accent in dark */
-    --accent: #fb923c;
-    --accent-2: #f97316;
-    --accent-rgb: 251 146 60;
-    --accent-2-rgb: 249 115 22;
   }
 }
 
-:root[data-theme='dark'] {
-  --bg: var(--ink);
-  --fg: rgba(255 255 255 / 0.92);
-  --muted: rgba(255 255 255 / 0.72);
-  --subtle: rgba(255 255 255 / 0.6);
-  --surface: rgba(255 255 255 / 0.06);
-  --surface-2: rgba(255 255 255 / 0.1);
-  --border: rgba(255 255 255 / 0.16);
-  --ring: rgba(var(--accent-rgb) / 0.6);
-
-  --accent: #fb923c;
-  --accent-2: #f97316;
-  --accent-rgb: 251 146 60;
-  --accent-2-rgb: 249 115 22;
-}
-
 @theme inline {
-  /* Semantic colors (Tailwind: bg-bg, text-fg, border-border, etc.) */
   --color-bg: var(--bg);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
@@ -82,6 +78,10 @@
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
   --color-ring: var(--ring);
+  --color-answer-red: var(--answer-red);
+  --color-answer-blue: var(--answer-blue);
+  --color-answer-gold: var(--answer-gold);
+  --color-answer-green: var(--answer-green);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -100,7 +100,6 @@ body {
 }
 
 :root {
-  /* Brand type: relies on the font being installed or provided by the environment. */
   --font-brand: 'BBH Hegarty', var(--font-sans), ui-sans-serif, system-ui;
 }
 
@@ -110,19 +109,17 @@ body {
 }
 
 ::selection {
-  background: rgb(var(--accent-rgb) / 0.22);
+  background: rgba(var(--accent-rgb) / 0.3);
 }
 
-.yell-ambient {
-  background: var(--bg);
-}
+/* ==================== Components ==================== */
 
 .yell-card {
   background: color-mix(in srgb, var(--bg) 86%, var(--surface-2));
   border: 1px solid var(--border);
   box-shadow:
-    0 1px 0 rgb(var(--ink-rgb) / 0.04),
-    0 18px 60px rgb(var(--ink-rgb) / 0.08);
+    0 1px 0 rgba(var(--ink-rgb) / 0.04),
+    0 18px 60px rgba(var(--ink-rgb) / 0.08);
 }
 
 .yell-focus-ring:focus-visible {
@@ -138,4 +135,186 @@ body {
     border-color var(--dur-ui) var(--ease-out),
     color var(--dur-ui) var(--ease-out),
     opacity var(--dur-ui) var(--ease-out);
+}
+
+/* ==================== Kahoot-style Answer Buttons ==================== */
+
+.yell-answer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  min-height: 80px;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.yell-answer:hover:not(:disabled) {
+  transform: scale(1.02);
+}
+
+.yell-answer:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.yell-answer.selected {
+  transform: scale(0.95);
+  box-shadow: 0 0 0 4px var(--accent), inset 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.yell-answer.faded {
+  opacity: 0.4;
+  transform: scale(0.95);
+}
+
+.yell-answer:disabled {
+  cursor: not-allowed;
+}
+
+.yell-answer-red { background: linear-gradient(135deg, #e21b3c 0%, #c41230 100%); }
+.yell-answer-blue { background: linear-gradient(135deg, #1368ce 0%, #0d4fa3 100%); }
+.yell-answer-gold { background: linear-gradient(135deg, #d89e00 0%, #b38300 100%); }
+.yell-answer-green { background: linear-gradient(135deg, #26890c 0%, #1d6a09 100%); }
+
+.yell-answer-shape {
+  font-size: 1.5rem;
+  opacity: 0.9;
+}
+
+/* ==================== Timer Bar ==================== */
+
+.yell-timer-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.yell-timer-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.1s linear, background-color 0.3s ease;
+}
+
+.yell-timer-fill.warning {
+  background: #f59e0b;
+}
+
+.yell-timer-fill.danger {
+  background: var(--answer-red);
+}
+
+/* ==================== Podium ==================== */
+
+.yell-podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+
+.yell-podium-place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.yell-podium-bar {
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 1rem 0.5rem;
+  border-radius: 8px 8px 0 0;
+  color: #000;
+  font-weight: 700;
+}
+
+.yell-podium-1 {
+  height: 140px;
+  background: linear-gradient(180deg, #ffd700 0%, #b8860b 100%);
+}
+
+.yell-podium-2 {
+  height: 110px;
+  background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%);
+}
+
+.yell-podium-3 {
+  height: 80px;
+  background: linear-gradient(180deg, #cd7f32 0%, #8b4513 100%);
+}
+
+.yell-podium-name {
+  margin-top: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==================== Animations ==================== */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.animate-shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+/* ==================== Theme Toggle ==================== */
+
+.yell-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.yell-theme-toggle:hover {
+  background: var(--surface-2);
+  border-color: var(--accent);
 }
