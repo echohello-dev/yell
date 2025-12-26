@@ -12,7 +12,7 @@ The web app is built and published as a container image to GitHub Container Regi
 - On pushes to `main`
 - On tags matching `v*`
 
-Workflow: `.github/workflows/web-ghcr.yml`
+Workflow: `.github/workflows/deploy-web-ghcr.yml`
 
 ## Running locally
 

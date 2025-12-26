@@ -27,8 +27,8 @@ mise run install
 ### Develop
 
 ```bash
-bun run dev:web
-bun run dev:mobile
+mise run dev:web
+mise run dev:mobile
 ```
 
 ### Lint / test
@@ -41,14 +41,22 @@ mise run test
 ### Build
 
 ```bash
-mise run build
+mise run build           # Build both web and mobile
+mise run build:web       # Build web only
+mise run build:mobile    # Build mobile only
+mise run build:shared    # Build shared package only
 ```
 
 ## Repository layout
 
 - `apps/web` — Next.js web app (App Router) + Socket.IO server entrypoint
   - `app/api/*/route.ts` — API routes
-  - `app/*/page.tsx` — pages (host/join/session/play)
+  - `app/*/page.tsx` — pages (host/join/session/play/demo)
+  - `app/join/JoinClient.tsx` — client-side join logic
+  - `components/` — shared UI components
+    - `BrandMark.tsx` — Yell logo/brand component
+    - `GamePinForm.tsx` — reusable game pin input form
+    - `ThemeToggle.tsx` — dark/light mode toggle
   - `hooks/useSocket.ts` — client socket hook
   - `server.ts` — custom server (runs Next + Socket.IO)
 - `apps/mobile` — Expo client
@@ -64,7 +72,7 @@ mise run build
 If you change anything in `packages/shared`, run:
 
 ```bash
-cd packages/shared && bun run build
+mise run build:shared
 ```
 
 ### Web server/runtime notes
@@ -79,6 +87,14 @@ cd packages/shared && bun run build
 - API endpoints live under `apps/web/app/api/*/route.ts`.
 - Prefer validating request bodies and returning clear errors.
 - Keep handlers small; move shared parsing/validation into `packages/shared` when it’s truly shared.
+
+### UI components
+
+- Reusable UI components live in `apps/web/components/`.
+- Use the `BrandMark` component for consistent branding across pages.
+- Use the `GamePinForm` component for game pin entry.
+- Use the `ThemeToggle` component for dark/light mode switching.
+- Follow existing CSS patterns in `apps/web/app/globals.css` (CSS variables for theming).
 
 ### Style / scope
 
@@ -102,17 +118,19 @@ Before opening a PR, try to run (as applicable):
 ```bash
 mise run lint
 mise run test
-bun run build:web
+mise run build:web
 ```
 
 If you touched mobile-only code:
 
 ```bash
-cd apps/mobile && bun run start
+mise run dev:mobile
 ```
 
 ## Where to look first
 
 - UI routes: `apps/web/app/**/page.tsx`
+- UI components: `apps/web/components/*.tsx`
 - Real-time wiring: `apps/web/server.ts` and `apps/web/hooks/useSocket.ts`
 - Shared contracts: `packages/shared/src/types.ts` and `packages/shared/src/utils.ts`
+- Styles/theming: `apps/web/app/globals.css`

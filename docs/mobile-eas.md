@@ -20,16 +20,25 @@ The mobile app is an Expo (managed) project. The recommended way to publish bina
 3. Create an Expo access token and add it to GitHub repo secrets:
    - Secret: `EXPO_TOKEN`
 
-## GitHub Actions workflow
+## GitHub Actions workflows
 
-Workflow: `.github/workflows/mobile-eas.yml`
+### Manual workflow: `.github/workflows/mobile-eas.yml`
 
-It is **manual** (`workflow_dispatch`) and supports:
+This is **manual** (`workflow_dispatch`) and supports:
 
 - `build`: create store binaries in EAS
 - `submit`: submit the latest build to stores
 - `build_and_submit`: do both
 - `update`: publish an EAS Update (OTA-style)
+
+### Automatic deployment: `.github/workflows/deploy-mobile-eas.yml`
+
+This runs automatically on:
+
+- Pushes to `main`
+- Tags matching `v*`
+
+It publishes EAS Updates (OTA-style) using `eas update --auto`.
 
 ## Store credentials
 
