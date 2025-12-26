@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -9,15 +9,11 @@ import { BrandMark } from '../../components/BrandMark';
 export default function JoinClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [joinCode, setJoinCode] = useState('');
+  const initialCode = searchParams.get('code') || searchParams.get('joinCode') || '';
+  const [joinCode, setJoinCode] = useState(initialCode.toLowerCase());
   const [playerName, setPlayerName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const code = searchParams.get('code') || searchParams.get('joinCode');
-    if (code) setJoinCode(code.toLowerCase());
-  }, [searchParams]);
 
   const handleJoin = async () => {
     if (!joinCode || !playerName) {

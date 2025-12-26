@@ -11,6 +11,12 @@ export default function Home() {
           <BrandMark size="md" tagline="Live quiz platform" />
           <nav className="hidden sm:flex items-center gap-2 text-sm text-muted">
             <Link
+              href="/demo"
+              className="yell-transition rounded-full px-4 py-2 hover:bg-surface-2"
+            >
+              Demo
+            </Link>
+            <Link
               href="/host"
               className="yell-transition rounded-full px-4 py-2 hover:bg-surface-2"
             >

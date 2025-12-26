@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useSocket } from '@/hooks/useSocket';
 
+import { BrandMark } from '../../../components/BrandMark';
+
 interface Question {
   id: string;
   type: 'multiple_choice' | 'poll' | 'scale' | 'numeric_guess';
@@ -27,24 +29,23 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
     'waiting' | 'question' | 'answered' | 'results' | 'ended'
   >('waiting');
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
-  const [selectedAnswer, setSelectedAnswer] = useState<any>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | string | null>(null);
   const [questionStartTime, setQuestionStartTime] = useState<number>(0);
   const [feedback, setFeedback] = useState<{ isCorrect?: boolean; points?: number } | null>(null);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [leaderboard, setLeaderboard] = useState<
+    { playerId: string; playerName: string; score: number; rank: number }[]
+  >([]);
   const [myRank, setMyRank] = useState<number>(0);
   const [myScore, setMyScore] = useState<number>(0);
 
   useEffect(() => {
     if (socket && isConnected && playerId && playerName) {
-      // Join session as player
       socket.emit('join:session', { sessionId, playerId, playerName, isHost: false });
 
-      // Listen for session started
       socket.on('session:started', () => {
         setGameState('waiting');
       });
 
-      // Listen for question started
       socket.on('question:started', ({ question }) => {
         setCurrentQuestion(question);
         setGameState('question');
@@ -53,7 +54,6 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
         setQuestionStartTime(Date.now());
       });
 
-      // Listen for answer submitted confirmation
       socket.on('answer:submitted', ({ isCorrect, points }) => {
         setFeedback({ isCorrect, points });
         setGameState('answered');
@@ -62,27 +62,39 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
         }
       });
 
-      // Listen for question ended
-      socket.on('question:ended', ({ leaderboard: newLeaderboard }) => {
-        setLeaderboard(newLeaderboard);
-        const myEntry = newLeaderboard.find((e: any) => e.playerId === playerId);
-        if (myEntry) {
-          setMyRank(myEntry.rank);
-          setMyScore(myEntry.score);
-        }
-        setGameState('results');
-      });
+      socket.on(
+        'question:ended',
+        ({
+          leaderboard: newLeaderboard,
+        }: {
+          leaderboard: { playerId: string; playerName: string; score: number; rank: number }[];
+        }) => {
+          setLeaderboard(newLeaderboard);
+          const myEntry = newLeaderboard.find((e) => e.playerId === playerId);
+          if (myEntry) {
+            setMyRank(myEntry.rank);
+            setMyScore(myEntry.score);
+          }
+          setGameState('results');
+        },
+      );
 
-      // Listen for session ended
-      socket.on('session:ended', ({ leaderboard: finalLeaderboard, winners }) => {
-        setLeaderboard(finalLeaderboard);
-        const myEntry = finalLeaderboard.find((e: any) => e.playerId === playerId);
-        if (myEntry) {
-          setMyRank(myEntry.rank);
-          setMyScore(myEntry.score);
-        }
-        setGameState('ended');
-      });
+      socket.on(
+        'session:ended',
+        ({
+          leaderboard: finalLeaderboard,
+        }: {
+          leaderboard: { playerId: string; playerName: string; score: number; rank: number }[];
+        }) => {
+          setLeaderboard(finalLeaderboard);
+          const myEntry = finalLeaderboard.find((e) => e.playerId === playerId);
+          if (myEntry) {
+            setMyRank(myEntry.rank);
+            setMyScore(myEntry.score);
+          }
+          setGameState('ended');
+        },
+      );
 
       return () => {
         socket.off('session:started');
@@ -120,24 +132,34 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
 
   if (!playerId || !playerName) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-red-600">Invalid player information</div>
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <div className="yell-card rounded-3xl p-8 text-center">
+          <p className="text-xl text-red-500 font-semibold">Invalid player information</p>
+          <Link
+            href="/"
+            className="mt-4 inline-block text-sm text-muted hover:text-fg yell-transition"
+          >
+            ← Return home
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex flex-col">
+    <div className="min-h-screen bg-bg flex flex-col">
       {/* Header */}
-      <div className="bg-white/10 backdrop-blur-sm p-4">
-        <div className="max-w-4xl mx-auto flex justify-between items-center text-white">
+      <div className="border-b border-border p-4">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div>
-            <p className="text-sm opacity-80">Playing as</p>
-            <p className="text-xl font-bold">{playerName}</p>
+            <p className="text-xs font-semibold tracking-wide text-muted">Playing as</p>
+            <p className="text-lg font-bold">{playerName}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm opacity-80">Score</p>
-            <p className="text-2xl font-bold">{myScore}</p>
+            <p className="text-xs font-semibold tracking-wide text-muted">Score</p>
+            <p className="text-2xl font-bold" style={{ color: 'var(--accent)' }}>
+              {myScore}
+            </p>
           </div>
         </div>
       </div>
@@ -146,16 +168,19 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="max-w-2xl w-full">
           {gameState === 'waiting' && (
-            <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">Get Ready!</h2>
-              <p className="text-xl text-gray-600 mb-6">Waiting for host to start the quiz...</p>
-              <div className="animate-pulse text-6xl">⏳</div>
+            <div className="yell-card rounded-3xl p-8 text-center">
+              <BrandMark size="sm" className="justify-center mb-6" />
+              <h2 className="yell-brand text-3xl font-black tracking-tight mb-4">Get Ready!</h2>
+              <p className="text-lg text-subtle mb-6">Waiting for host to start the quiz...</p>
+              <div className="text-6xl animate-pulse">⏳</div>
             </div>
           )}
 
           {gameState === 'question' && currentQuestion && (
-            <div className="bg-white rounded-lg shadow-xl p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">{currentQuestion.title}</h2>
+            <div className="yell-card rounded-3xl p-8">
+              <h2 className="yell-brand text-2xl font-black tracking-tight mb-6">
+                {currentQuestion.title}
+              </h2>
 
               {currentQuestion.type === 'multiple_choice' || currentQuestion.type === 'poll' ? (
                 <div className="space-y-3 mb-6">
@@ -163,11 +188,14 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                     <button
                       key={index}
                       onClick={() => setSelectedAnswer(index)}
-                      className={`w-full p-4 rounded-lg text-left font-semibold transition-all ${
+                      className={`yell-focus-ring yell-transition w-full p-4 rounded-2xl text-left font-semibold border ${
                         selectedAnswer === index
-                          ? 'bg-purple-600 text-white scale-105'
-                          : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                          ? 'border-accent bg-surface-2 scale-[1.02]'
+                          : 'border-border bg-surface hover:bg-surface-2'
                       }`}
+                      style={
+                        selectedAnswer === index ? { borderColor: 'var(--accent)' } : undefined
+                      }
                     >
                       {option}
                     </button>
@@ -179,16 +207,22 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                     type="range"
                     min={currentQuestion.scaleMin}
                     max={currentQuestion.scaleMax}
-                    value={selectedAnswer || currentQuestion.scaleMin}
+                    value={
+                      typeof selectedAnswer === 'number'
+                        ? selectedAnswer
+                        : currentQuestion.scaleMin || 1
+                    }
                     onChange={(e) => setSelectedAnswer(parseInt(e.target.value))}
-                    className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-3 bg-surface-2 rounded-lg appearance-none cursor-pointer accent-accent"
                   />
                   <div className="flex justify-between mt-2">
-                    <span className="text-gray-600">{currentQuestion.scaleMin}</span>
-                    <span className="text-2xl font-bold text-purple-600">
-                      {selectedAnswer || currentQuestion.scaleMin}
+                    <span className="text-subtle">{currentQuestion.scaleMin}</span>
+                    <span className="text-2xl font-bold" style={{ color: 'var(--accent)' }}>
+                      {typeof selectedAnswer === 'number'
+                        ? selectedAnswer
+                        : currentQuestion.scaleMin}
                     </span>
-                    <span className="text-gray-600">{currentQuestion.scaleMax}</span>
+                    <span className="text-subtle">{currentQuestion.scaleMax}</span>
                   </div>
                 </div>
               ) : currentQuestion.type === 'numeric_guess' ? (
@@ -198,7 +232,7 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                     value={selectedAnswer || ''}
                     onChange={(e) => setSelectedAnswer(e.target.value)}
                     placeholder="Enter your answer..."
-                    className="w-full p-4 text-2xl text-center border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="yell-focus-ring yell-transition w-full p-4 text-2xl text-center rounded-2xl border border-border bg-bg placeholder:text-subtle"
                   />
                 </div>
               ) : null}
@@ -206,7 +240,8 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
               <button
                 onClick={submitAnswer}
                 disabled={selectedAnswer === null}
-                className="w-full px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="yell-focus-ring yell-transition w-full px-6 py-4 text-white rounded-2xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: 'var(--accent)' }}
               >
                 Submit Answer
               </button>
@@ -214,31 +249,33 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
           )}
 
           {gameState === 'answered' && (
-            <div className="bg-white rounded-lg shadow-xl p-8 text-center">
+            <div className="yell-card rounded-3xl p-8 text-center">
               {feedback?.isCorrect !== undefined ? (
                 <>
                   <div className={`text-6xl mb-4 ${feedback.isCorrect ? 'animate-bounce' : ''}`}>
                     {feedback.isCorrect ? '✅' : '❌'}
                   </div>
-                  <h2
-                    className={`text-3xl font-bold mb-2 ${feedback.isCorrect ? 'text-green-600' : 'text-red-600'}`}
-                  >
+                  <h2 className="yell-brand text-3xl font-black tracking-tight mb-2">
                     {feedback.isCorrect ? 'Correct!' : 'Incorrect'}
                   </h2>
                   {feedback.isCorrect && feedback.points && (
-                    <p className="text-2xl text-purple-600 font-bold">+{feedback.points} points</p>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--accent)' }}>
+                      +{feedback.points} points
+                    </p>
                   )}
                 </>
               ) : (
                 <>
-                  <h2 className="text-3xl font-bold text-gray-800 mb-4">Answer Submitted!</h2>
-                  <p className="text-xl text-gray-600">Waiting for results...</p>
+                  <h2 className="yell-brand text-3xl font-black tracking-tight mb-4">
+                    Answer Submitted!
+                  </h2>
+                  <p className="text-xl text-subtle">Waiting for results...</p>
                 </>
               )}
 
               <button
                 onClick={sendReaction}
-                className="mt-6 px-6 py-3 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 font-semibold text-lg shadow-lg"
+                className="yell-focus-ring yell-transition mt-6 px-6 py-3 rounded-full font-semibold text-lg border border-border bg-surface hover:bg-surface-2"
               >
                 👍 Send Reaction
               </button>
@@ -246,28 +283,37 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
           )}
 
           {gameState === 'results' && (
-            <div className="bg-white rounded-lg shadow-xl p-8">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">Leaderboard</h2>
-              <div className="mb-6 p-4 bg-purple-50 rounded-lg text-center">
-                <p className="text-sm text-gray-600">Your Position</p>
-                <p className="text-4xl font-bold text-purple-600">#{myRank}</p>
-                <p className="text-xl text-gray-800">{myScore} points</p>
+            <div className="yell-card rounded-3xl p-8">
+              <h2 className="yell-brand text-3xl font-black tracking-tight mb-4 text-center">
+                Leaderboard
+              </h2>
+              <div className="mb-6 p-4 bg-surface rounded-2xl text-center">
+                <p className="text-sm text-muted">Your Position</p>
+                <p className="text-4xl font-bold" style={{ color: 'var(--accent)' }}>
+                  #{myRank}
+                </p>
+                <p className="text-xl">{myScore} points</p>
               </div>
 
               <div className="space-y-2">
-                {leaderboard.slice(0, 10).map((entry: any) => (
+                {leaderboard.slice(0, 10).map((entry) => (
                   <div
                     key={entry.playerId}
-                    className={`flex justify-between items-center p-3 rounded-lg ${
+                    className={`flex justify-between items-center p-3 rounded-xl ${
                       entry.playerId === playerId
-                        ? 'bg-purple-100 border-2 border-purple-600'
-                        : 'bg-gray-50'
+                        ? 'bg-surface-2 border border-accent'
+                        : 'bg-surface'
                     }`}
+                    style={
+                      entry.playerId === playerId ? { borderColor: 'var(--accent)' } : undefined
+                    }
                   >
                     <span className="font-semibold">
                       #{entry.rank} {entry.playerName}
                     </span>
-                    <span className="font-bold text-purple-600">{entry.score}</span>
+                    <span className="font-bold" style={{ color: 'var(--accent)' }}>
+                      {entry.score}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -275,13 +321,15 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
           )}
 
           {gameState === 'ended' && (
-            <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-              <h2 className="text-4xl font-bold text-gray-800 mb-4">Quiz Ended!</h2>
+            <div className="yell-card rounded-3xl p-8 text-center">
+              <h2 className="yell-brand text-4xl font-black tracking-tight mb-4">Quiz Ended!</h2>
 
-              <div className="mb-6 p-6 bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg">
-                <p className="text-sm text-gray-600 mb-2">Final Position</p>
-                <p className="text-6xl font-bold text-purple-600 mb-2">#{myRank}</p>
-                <p className="text-2xl text-gray-800 font-semibold">{myScore} points</p>
+              <div className="mb-6 p-6 bg-surface rounded-2xl">
+                <p className="text-sm text-muted mb-2">Final Position</p>
+                <p className="text-6xl font-bold mb-2" style={{ color: 'var(--accent)' }}>
+                  #{myRank}
+                </p>
+                <p className="text-2xl font-semibold">{myScore} points</p>
               </div>
 
               {myRank <= 3 && (
@@ -289,17 +337,18 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                   <p className="text-3xl mb-2">
                     {myRank === 1 ? '🥇' : myRank === 2 ? '🥈' : '🥉'}
                   </p>
-                  <p className="text-xl font-bold text-purple-600">
+                  <p className="text-xl font-bold" style={{ color: 'var(--accent)' }}>
                     {myRank === 1 ? 'Champion!' : myRank === 2 ? 'Runner-up!' : 'Bronze Medal!'}
                   </p>
                 </div>
               )}
 
-              <div className="pt-6 border-t border-gray-200">
-                <p className="text-gray-600 mb-4">Thanks for playing!</p>
+              <div className="pt-6 border-t border-border">
+                <p className="text-subtle mb-4">Thanks for playing!</p>
                 <Link
                   href="/"
-                  className="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold"
+                  className="yell-focus-ring yell-transition inline-block px-6 py-3 text-white rounded-2xl font-semibold"
+                  style={{ backgroundColor: 'var(--accent)' }}
                 >
                   Play Another Quiz
                 </Link>
