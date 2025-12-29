@@ -6,7 +6,8 @@
     "dev": "tsx server.ts",
     "build": "NODE_ENV=production next build",
     "start": "NODE_ENV=production tsx server.ts",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest"
   },
   "dependencies": {
     "@types/qrcode": "^1.5.6",
@@ -28,6 +29,7 @@
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4.1.18",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.8"
   }
 }
