@@ -76,21 +76,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-
-  // Redirect HTTP to HTTPS in production
-  redirects: async () => {
-    if (process.env.NODE_ENV === 'production') {
-      return [
-        {
-          source: '/:path*',
-          destination: 'https://:host/:path*',
-          permanent: true,
-          basePath: false,
-        },
-      ];
-    }
-    return [];
-  },
 };
 
 export default nextConfig;
