@@ -1,11 +1,101 @@
+# Git and version control
 .git
 .github
+.gitignore
+.gitattributes
+
+# Node.js
 node_modules
 **/node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+bun.lockb
+
+# Build outputs
 **/.next
 **/dist
+**/build
+**/out
 **/.expo
 **/.expo-shared
 **/.turbo
 **/.cache
+
+# Environment and secrets (DO NOT INCLUDE)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.development.local
+.env.production.local
+.env.*.local
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
 .DS_Store
+Thumbs.db
+*.sublime-workspace
+*.sublime-project
+.editorconfig
+
+# Testing and coverage
+coverage
+.nyc_output
+jest-coverage
+test-results/
+playwright-report/
+
+# CI/CD
+.gitlab-ci.yml
+.travis.yml
+appveyor.yml
+azure-pipelines.yml
+
+# Documentation (keep only critical security docs)
+docs/
+README.md
+LICENSE
+LICENSE_HISTORY.md
+AGENTS.md
+
+# Docker related
+docker-compose.yml
+docker-compose.override.yml
+docker-compose.test.yml
+.dockerignore
+
+# Development tools
+Makefile
+.mise.toml
+renovate.json
+tsconfig.build.json
+
+# Temporary and log files
+tmp/
+temp/
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+.localized
+
+# Archive files
+*.zip
+*.tar
+*.tar.gz
+*.tar.bz2
+*.rar
+
+# Lock files (except bun.lock)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+

@@ -137,6 +137,14 @@ These constraints are important to avoid TLS handshake issues and redirect loops
 - When using Cloudflare Tunnel with Traefik, set `http_host_header` in the tunnel config to match the Ingress rule host (example: `traefik-public.ingress`).
 - Disable Traefik global HTTP→HTTPS redirection when the tunnel connects over HTTP (otherwise you can get redirect loops).
 
+## Docker services for local dev
+
+- **Traefik** (port 80): Reverse proxy with auto-discovery
+- **PostgreSQL** (port 5432): Database via env vars from `.env`
+- **Redis** (port 6379): Cache via env vars from `.env`
+
+Create `.env` from `.env.example` before running `docker compose up`.
+
 ## What to run before/after changes
 
 Before opening a PR, try to run (as applicable):
@@ -151,6 +159,15 @@ If you touched mobile-only code:
 
 ```bash
 mise run dev:mobile
+```
+
+For Docker changes:
+
+```bash
+mise run docker:up      # Start services
+mise run docker:down    # Stop services
+mise run docker:logs    # View logs
+mise run docker:reset   # Reset volumes
 ```
 
 ## Where to look first

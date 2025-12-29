@@ -52,3 +52,23 @@ description = "Run Playwright tests in UI mode"
 [tasks."test:e2e:headed"]
 run = "cd apps/web && bun run test:e2e:headed"
 description = "Run Playwright tests in headed mode"
+
+[tasks."docker:up"]
+run = "docker compose up -d"
+description = "Start local dev services (Traefik, PostgreSQL, Redis)"
+
+[tasks."docker:down"]
+run = "docker compose down"
+description = "Stop local dev services"
+
+[tasks."docker:logs"]
+run = "docker compose logs -f"
+description = "View service logs"
+
+[tasks."docker:reset"]
+run = "docker compose down -v && docker compose up -d"
+description = "Reset services (removes volumes)"
+
+[tasks."dev"]
+run = "docker compose up -d && bun run dev:web"
+description = "Start Traefik/DB/Redis and run web dev server"
