@@ -14,6 +14,8 @@ Use this document to make safe, minimal, verifiable changes.
 
 - Node 24+
 - Bun
+- Docker & Docker Compose (for local services)
+- [mise](https://mise.jdx.dev) (optional but recommended)
 
 This repo includes a `.mise.toml` with tool versions and common tasks.
 
@@ -24,11 +26,34 @@ mise trust
 mise run install
 ```
 
-### Develop
+### Local Dev Setup
+
+Start Traefik + PostgreSQL + Redis:
+
+```bash
+mise run docker:up
+# or: docker compose up -d
+```
+
+Then run the web dev server (in another terminal):
 
 ```bash
 mise run dev:web
-mise run dev:mobile
+```
+
+Access at `http://localhost` (Traefik) or `http://localhost:3000` (direct).
+
+Stop services:
+
+```bash
+mise run docker:down
+```
+
+### Develop
+
+```bash
+mise run dev:web    # Next.js + Socket.IO server (requires docker:up)
+mise run dev:mobile # Expo dev server
 ```
 
 ### Lint / test
@@ -102,6 +127,7 @@ mise run build:shared
 - Don’t reformat unrelated files.
 - Avoid introducing new heavy deps unless needed.
 - When adding/modifying features, keep relevant docs in `./docs` up to date.
+- **Do NOT create progress/summary markdown files** (e.g., `SUMMARY.md`, `CHANGES.md`) to document your work—it's redundant and noisy.
 
 ## Infra notes: Cloudflare Tunnel ↔ Traefik
 
