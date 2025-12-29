@@ -40,3 +40,15 @@ description = "Build mobile app"
 [tasks."build:shared"]
 run = "cd packages/shared && bun run build"
 description = "Build shared package"
+
+[tasks."test:e2e"]
+run = "cd apps/web && bun run test:e2e"
+description = "Run Playwright E2E tests"
+
+[tasks."test:e2e:ui"]
+run = "cd apps/web && bun run test:e2e:ui"
+description = "Run Playwright tests in UI mode"
+
+[tasks."test:e2e:headed"]
+run = "cd apps/web && bun run test:e2e:headed"
+description = "Run Playwright tests in headed mode"

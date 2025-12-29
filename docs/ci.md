@@ -9,9 +9,14 @@ This repo uses GitHub Actions to validate builds for the monorepo.
   - Uses mise for dependency and tool management (Node.js 24 + Bun)
   - Installs workspace deps via `mise run install`
   - Builds `packages/shared` first via `mise run build:shared` (required by the web custom server)
-  - Matrix build for `apps/web` (Next.js) and `apps/mobile` (Expo export)
-  - Web: `mise run build:web`
-  - Mobile: `mise run build:mobile` (artifact-style build, not store binaries)
+  - **Lint and Test Job**: Runs linting, unit tests, and E2E tests before building
+    - `mise run lint` - ESLint checks
+    - `mise run test` - Vitest unit tests
+    - `mise run test:e2e` - Playwright E2E tests (Chromium only)
+    - Uploads Playwright HTML report as artifact on failure
+  - **Build Job**: Matrix build for `apps/web` (Next.js) and `apps/mobile` (Expo export)
+    - Web: `mise run build:web`
+    - Mobile: `mise run build:mobile` (artifact-style build, not store binaries)
 
 - `.github/workflows/release.yml`
   - Runs on pushes to `main`
@@ -38,6 +43,7 @@ This repo uses GitHub Actions to validate builds for the monorepo.
 - Install: `mise run install`
 - Lint: `mise run lint`
 - Test: `mise run test`
+- Test E2E: `mise run test:e2e`
 - Build all: `mise run build`
 - Build web: `mise run build:web`
 - Build mobile: `mise run build:mobile`
