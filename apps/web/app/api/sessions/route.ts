@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     currentQuestionIndex: -1,
     players: [],
     createdAt: new Date(),
-    prizeMode: body.prizeMode || 'none',
+    prizeMode: body.prizeMode || 'top_score',
   };
 
   global.storage.sessions.set(session.id, session);
