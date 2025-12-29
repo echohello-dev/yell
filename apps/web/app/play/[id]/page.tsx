@@ -24,17 +24,22 @@ interface LeaderboardEntry {
   rank: number;
 }
 
-const ANSWER_COLORS = ['yell-answer-red', 'yell-answer-blue', 'yell-answer-gold', 'yell-answer-green'];
+const ANSWER_COLORS = [
+  'yell-answer-red',
+  'yell-answer-blue',
+  'yell-answer-gold',
+  'yell-answer-green',
+];
 const ANSWER_SHAPES = ['▲', '◆', '●', '■'];
 
 export default function PlayPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const sessionId = resolvedParams.id;
   const searchParams = useSearchParams();
-  const playerId = searchParams.get('playerId');
   const playerName = searchParams.get('playerName');
 
   const { socket, isConnected } = useSocket();
+  const [playerId, setPlayerId] = useState<string>('');
   const [gameState, setGameState] = useState<
     'waiting' | 'question' | 'answered' | 'results' | 'ended'
   >('waiting');
@@ -48,10 +53,14 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
   const [myScore, setMyScore] = useState<number>(0);
 
   useEffect(() => {
-    if (socket && isConnected && playerId && playerName) {
-      socket.emit('join:session', { sessionId, playerId, playerName, isHost: false });
+    if (socket && isConnected && playerName) {
+      socket.emit('join:session', { sessionId, playerName, isHost: false });
 
-      socket.on('session:started', () => {
+      // Listen for session joined event to get playerId from server
+      socket.on('session:joined', ({ playerId: serverId }) => {
+        if (serverId) {
+          setPlayerId(serverId);
+        }
         setGameState('waiting');
       });
 
@@ -64,33 +73,42 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
         setTimeRemaining(question.timeLimit || 20);
       });
 
-      socket.on('answer:submitted', ({ isCorrect, points }: { isCorrect: boolean; points: number }) => {
-        setFeedback({ isCorrect, points });
-        setGameState('answered');
-        if (isCorrect) {
-          setMyScore((prev) => prev + points);
-        }
-      });
+      socket.on(
+        'answer:submitted',
+        ({ isCorrect, points }: { isCorrect: boolean; points: number }) => {
+          setFeedback({ isCorrect, points });
+          setGameState('answered');
+          if (isCorrect) {
+            setMyScore((prev) => prev + points);
+          }
+        },
+      );
 
-      socket.on('question:ended', ({ leaderboard: newLeaderboard }: { leaderboard: LeaderboardEntry[] }) => {
-        setLeaderboard(newLeaderboard);
-        const myEntry = newLeaderboard.find((e) => e.playerId === playerId);
-        if (myEntry) {
-          setMyRank(myEntry.rank);
-          setMyScore(myEntry.score);
-        }
-        setGameState('results');
-      });
+      socket.on(
+        'question:ended',
+        ({ leaderboard: newLeaderboard }: { leaderboard: LeaderboardEntry[] }) => {
+          setLeaderboard(newLeaderboard);
+          const myEntry = newLeaderboard.find((e) => e.playerId === playerId);
+          if (myEntry) {
+            setMyRank(myEntry.rank);
+            setMyScore(myEntry.score);
+          }
+          setGameState('results');
+        },
+      );
 
-      socket.on('session:ended', ({ leaderboard: finalLeaderboard }: { leaderboard: LeaderboardEntry[] }) => {
-        setLeaderboard(finalLeaderboard);
-        const myEntry = finalLeaderboard.find((e) => e.playerId === playerId);
-        if (myEntry) {
-          setMyRank(myEntry.rank);
-          setMyScore(myEntry.score);
-        }
-        setGameState('ended');
-      });
+      socket.on(
+        'session:ended',
+        ({ leaderboard: finalLeaderboard }: { leaderboard: LeaderboardEntry[] }) => {
+          setLeaderboard(finalLeaderboard);
+          const myEntry = finalLeaderboard.find((e) => e.playerId === playerId);
+          if (myEntry) {
+            setMyRank(myEntry.rank);
+            setMyScore(myEntry.score);
+          }
+          setGameState('ended');
+        },
+      );
 
       return () => {
         socket.off('session:started');
@@ -115,26 +133,27 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
   }, [gameState, currentQuestion, questionStartTime]);
 
   const submitAnswer = (answer: number | string) => {
-    if (socket && currentQuestion && gameState === 'question') {
+    if (socket && currentQuestion && gameState === 'question' && playerId) {
       setSelectedAnswer(answer);
-      const timeTaken = timeRemaining > 0 ? (currentQuestion.timeLimit || 20) - timeRemaining : (currentQuestion.timeLimit || 20);
       socket.emit('answer:submit', {
         sessionId,
         playerId,
         questionId: currentQuestion.id,
         answer,
-        timeTaken,
       });
       setGameState('answered');
     }
   };
 
-  if (!playerId || !playerName) {
+  if (!playerName) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center">
         <div className="yell-card rounded-3xl p-8 text-center">
           <p className="text-xl text-answer-red font-semibold">Invalid player information</p>
-          <Link href="/" className="mt-4 inline-block text-sm text-muted hover:text-fg yell-transition">
+          <Link
+            href="/"
+            className="mt-4 inline-block text-sm text-muted hover:text-fg yell-transition"
+          >
             ← Return home
           </Link>
         </div>
@@ -142,7 +161,9 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
     );
   }
 
-  const timerPercentage = currentQuestion ? (timeRemaining / (currentQuestion.timeLimit || 20)) * 100 : 100;
+  const timerPercentage = currentQuestion
+    ? (timeRemaining / (currentQuestion.timeLimit || 20)) * 100
+    : 100;
   const timerClass = timerPercentage < 20 ? 'danger' : timerPercentage < 40 ? 'warning' : '';
 
   return (
@@ -175,10 +196,18 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
               </h2>
               <p className="text-lg text-subtle mb-6">Get ready to play...</p>
               <div className="flex justify-center gap-2 text-3xl">
-                <span className="animate-bounce-slow" style={{ animationDelay: '0s' }}>🔥</span>
-                <span className="animate-bounce-slow" style={{ animationDelay: '0.1s' }}>⚡</span>
-                <span className="animate-bounce-slow" style={{ animationDelay: '0.2s' }}>🎯</span>
-                <span className="animate-bounce-slow" style={{ animationDelay: '0.3s' }}>💥</span>
+                <span className="animate-bounce-slow" style={{ animationDelay: '0s' }}>
+                  🔥
+                </span>
+                <span className="animate-bounce-slow" style={{ animationDelay: '0.1s' }}>
+                  ⚡
+                </span>
+                <span className="animate-bounce-slow" style={{ animationDelay: '0.2s' }}>
+                  🎯
+                </span>
+                <span className="animate-bounce-slow" style={{ animationDelay: '0.3s' }}>
+                  💥
+                </span>
               </div>
             </div>
           </div>
@@ -191,7 +220,9 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
               <div className="max-w-4xl mx-auto">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-semibold text-muted uppercase">Time remaining</span>
-                  <span className="text-2xl font-black text-accent">{Math.ceil(timeRemaining)}s</span>
+                  <span className="text-2xl font-black text-accent">
+                    {Math.ceil(timeRemaining)}s
+                  </span>
                 </div>
                 <div className="yell-timer-bar">
                   <div
@@ -214,7 +245,8 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
             {/* Answer Options */}
             <div className="flex-1 p-4">
               <div className="max-w-4xl mx-auto h-full">
-                {(currentQuestion.type === 'multiple_choice' || currentQuestion.type === 'poll') && (
+                {(currentQuestion.type === 'multiple_choice' ||
+                  currentQuestion.type === 'poll') && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 h-full">
                     {currentQuestion.options?.slice(0, 4).map((option, index) => (
                       <button
@@ -238,7 +270,11 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                       type="range"
                       min={currentQuestion.scaleMin}
                       max={currentQuestion.scaleMax}
-                      value={typeof selectedAnswer === 'number' ? selectedAnswer : currentQuestion.scaleMin || 1}
+                      value={
+                        typeof selectedAnswer === 'number'
+                          ? selectedAnswer
+                          : currentQuestion.scaleMin || 1
+                      }
                       onChange={(e) => setSelectedAnswer(parseInt(e.target.value))}
                       className="w-full max-w-md h-4 bg-surface-2 rounded-lg appearance-none cursor-pointer accent-accent"
                     />
@@ -287,7 +323,9 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
             <div className="yell-card rounded-3xl p-8 text-center max-w-md w-full">
               {feedback?.isCorrect !== undefined ? (
                 <>
-                  <div className={`text-7xl mb-4 ${feedback.isCorrect ? 'animate-bounce-slow' : 'animate-shake'}`}>
+                  <div
+                    className={`text-7xl mb-4 ${feedback.isCorrect ? 'animate-bounce-slow' : 'animate-shake'}`}
+                  >
                     {feedback.isCorrect ? '✅' : '❌'}
                   </div>
                   <h2 className="yell-brand text-4xl font-black tracking-tight mb-2">
@@ -302,7 +340,9 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
               ) : (
                 <>
                   <div className="text-7xl mb-4 animate-pulse-slow">⏳</div>
-                  <h2 className="yell-brand text-3xl font-black tracking-tight">Answer locked in!</h2>
+                  <h2 className="yell-brand text-3xl font-black tracking-tight">
+                    Answer locked in!
+                  </h2>
                   <p className="text-subtle mt-2">Waiting for results...</p>
                 </>
               )}
@@ -313,7 +353,9 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
         {gameState === 'results' && (
           <div className="flex-1 flex items-center justify-center p-4">
             <div className="yell-card rounded-3xl p-8 max-w-lg w-full">
-              <h2 className="yell-brand text-3xl font-black tracking-tight mb-6 text-center">Leaderboard</h2>
+              <h2 className="yell-brand text-3xl font-black tracking-tight mb-6 text-center">
+                Leaderboard
+              </h2>
 
               {/* My Position */}
               <div className="mb-6 p-6 bg-surface rounded-2xl text-center border-2 border-accent">
@@ -333,7 +375,13 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                   >
                     <span className="font-bold">
                       <span className={entry.rank <= 3 ? 'mr-2' : ''}>
-                        {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `#${entry.rank}`}
+                        {entry.rank === 1
+                          ? '🥇'
+                          : entry.rank === 2
+                            ? '🥈'
+                            : entry.rank === 3
+                              ? '🥉'
+                              : `#${entry.rank}`}
                       </span>
                       {entry.playerName}
                     </span>
@@ -369,7 +417,9 @@ export default function PlayPage({ params }: { params: Promise<{ id: string }> }
                     <div className="yell-podium-bar yell-podium-1">
                       <span className="text-3xl font-black">#1</span>
                     </div>
-                    <p className="yell-podium-name text-accent font-bold">{leaderboard[0]?.playerName}</p>
+                    <p className="yell-podium-name text-accent font-bold">
+                      {leaderboard[0]?.playerName}
+                    </p>
                     <p className="text-sm text-muted">{leaderboard[0]?.score} pts</p>
                   </div>
 

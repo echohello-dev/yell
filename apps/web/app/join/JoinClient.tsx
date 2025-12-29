@@ -35,11 +35,8 @@ export default function JoinClient() {
 
       const { session } = await response.json();
 
-      // Generate player ID and navigate to play page
-      const playerId = `player-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
-      router.push(
-        `/play/${session.id}?playerId=${playerId}&playerName=${encodeURIComponent(playerName)}`,
-      );
+      // Navigate to play page - playerId will be generated server-side
+      router.push(`/play/${session.id}?playerName=${encodeURIComponent(playerName)}`);
     } catch (error) {
       console.error('Error joining session:', error);
       setError('Error joining session. Please try again.');

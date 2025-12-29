@@ -10,6 +10,10 @@ declare global {
 }
 
 describe('POST /api/sessions', () => {
+  // Use valid UUID for test quiz
+  const TEST_QUIZ_ID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
+  const INVALID_QUIZ_ID = 'f47ac10b-58cc-4372-a567-0e02b2c3d470';
+
   beforeEach(() => {
     // Setup global storage mock
     global.storage = {
@@ -18,9 +22,9 @@ describe('POST /api/sessions', () => {
       players: new Map(),
     };
 
-    // Add a test quiz
-    global.storage.quizzes.set('test-quiz-id', {
-      id: 'test-quiz-id',
+    // Add a test quiz with valid UUID
+    global.storage.quizzes.set(TEST_QUIZ_ID, {
+      id: TEST_QUIZ_ID,
       title: 'Test Quiz',
       questions: [],
     });
@@ -33,7 +37,7 @@ describe('POST /api/sessions', () => {
     const request = new Request('http://localhost/api/sessions', {
       method: 'POST',
       body: JSON.stringify({
-        quizId: 'test-quiz-id',
+        quizId: TEST_QUIZ_ID,
         hostId: 'host-123',
       }),
     });
@@ -52,7 +56,7 @@ describe('POST /api/sessions', () => {
     const request = new Request('http://localhost/api/sessions', {
       method: 'POST',
       body: JSON.stringify({
-        quizId: 'test-quiz-id',
+        quizId: TEST_QUIZ_ID,
         hostId: 'host-123',
         prizeMode: 'random_raffle',
       }),
@@ -71,7 +75,7 @@ describe('POST /api/sessions', () => {
     const request = new Request('http://localhost/api/sessions', {
       method: 'POST',
       body: JSON.stringify({
-        quizId: 'test-quiz-id',
+        quizId: TEST_QUIZ_ID,
         hostId: 'host-123',
         prizeMode: 'spin_wheel',
       }),
@@ -90,7 +94,7 @@ describe('POST /api/sessions', () => {
     const request = new Request('http://localhost/api/sessions', {
       method: 'POST',
       body: JSON.stringify({
-        quizId: 'test-quiz-id',
+        quizId: TEST_QUIZ_ID,
         hostId: 'host-123',
         prizeMode: 'none',
       }),
@@ -109,7 +113,7 @@ describe('POST /api/sessions', () => {
     const request = new Request('http://localhost/api/sessions', {
       method: 'POST',
       body: JSON.stringify({
-        quizId: 'non-existent-quiz',
+        quizId: INVALID_QUIZ_ID,
         hostId: 'host-123',
       }),
     });
@@ -125,7 +129,7 @@ describe('POST /api/sessions', () => {
     const request = new Request('http://localhost/api/sessions', {
       method: 'POST',
       body: JSON.stringify({
-        quizId: 'test-quiz-id',
+        quizId: TEST_QUIZ_ID,
         hostId: 'host-123',
       }),
     });
@@ -135,7 +139,7 @@ describe('POST /api/sessions', () => {
 
     expect(response.status).toBe(201);
     expect(data.session).toMatchObject({
-      quizId: 'test-quiz-id',
+      quizId: TEST_QUIZ_ID,
       hostId: 'host-123',
       status: 'waiting',
       currentQuestionIndex: -1,
@@ -153,7 +157,7 @@ describe('POST /api/sessions', () => {
     const request = new Request('http://localhost/api/sessions', {
       method: 'POST',
       body: JSON.stringify({
-        quizId: 'test-quiz-id',
+        quizId: TEST_QUIZ_ID,
         hostId: 'host-123',
       }),
     });

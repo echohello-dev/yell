@@ -89,6 +89,22 @@ mise run build:shared    # Build shared package only
 
 ## Development conventions
 
+### Import best practices
+
+**Shared package imports:**
+
+- Always use the package alias `@yell/shared` for imports from `packages/shared`
+- ✅ **DO**: `import { calculateLeaderboard } from '@yell/shared'`
+- ❌ **DON'T**: `import { calculateLeaderboard } from '../../packages/shared/dist/utils.js'`
+- The alias is configured in `tsconfig.json` under `paths`
+- Never import directly from `dist` folder or use `.js` extensions
+
+**Local file imports:**
+
+- Omit `.js` extension in imports; TypeScript/Next.js resolves it automatically
+- ✅ **DO**: `import { checkSocketRateLimit } from './lib/rateLimit'`
+- ❌ **DON'T**: `import { checkSocketRateLimit } from './lib/rateLimit.js'`
+
 ### Keep types in sync
 
 - Shared domain shapes should live in `packages/shared/src/types.ts`.
@@ -128,6 +144,13 @@ mise run build:shared
 - Avoid introducing new heavy deps unless needed.
 - When adding/modifying features, keep relevant docs in `./docs` up to date.
 - **Do NOT create progress/summary markdown files** (e.g., `SUMMARY.md`, `CHANGES.md`) to document your work—it's redundant and noisy.
+
+### Logging best practices
+
+- Use **wide events** (canonical log lines): emit one comprehensive, context-rich log event per request per service instead of scattered log statements.
+- Structure logs as JSON with high-cardinality fields (request_id, user_id, trace_id) and rich context (user subscription, feature flags, business metrics, error details).
+- Include request context (method, path, duration), user context (id, subscription, account age), business context (cart total, payment method), and error context (type, code, message) in a single event.
+- Avoid 15+ separate log lines per request; consolidate into one queryable event with all debugging information attached.
 
 ## Infra notes: Cloudflare Tunnel ↔ Traefik
 

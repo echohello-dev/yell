@@ -2,11 +2,9 @@ import { createServer } from 'http';
 import { parse } from 'url';
 import next from 'next';
 import { Server } from 'socket.io';
-import {
-  calculateScore,
-  calculateLeaderboard,
-  selectRandomWinners,
-} from '../../packages/shared/dist/utils.js';
+import { randomUUID } from 'crypto';
+import { calculateLeaderboard, selectRandomWinners } from '@yell/shared';
+import { checkSocketRateLimit } from './lib/rateLimit';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOST ?? (dev ? 'localhost' : '0.0.0.0');
@@ -19,6 +17,9 @@ const handle = app.getRequestHandler();
 const sessions = new Map<string, any>();
 const players = new Map<string, any>();
 const quizzes = new Map<string, any>();
+
+// Track player IDs per session for security
+const playerIdsBySession = new Map<string, Set<string>>();
 
 app.prepare().then(() => {
   const httpServer = createServer(async (req, res) => {
@@ -34,8 +35,13 @@ app.prepare().then(() => {
 
   const io = new Server(httpServer, {
     cors: {
-      origin: '*',
+      origin: process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(',')
+        : dev
+          ? ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:19006']
+          : [],
       methods: ['GET', 'POST'],
+      credentials: true,
     },
   });
 
@@ -43,8 +49,28 @@ app.prepare().then(() => {
   io.on('connection', (socket) => {
     console.log('Client connected:', socket.id);
 
+    // Add rate limiting middleware
+    socket.use(async (packet, next) => {
+      const allowed = await checkSocketRateLimit(socket.id);
+      if (!allowed) {
+        socket.emit('error', { message: 'Rate limit exceeded' });
+        return;
+      }
+      next();
+    });
+
     // Join session room
-    socket.on('join:session', ({ sessionId, playerId, playerName, isHost }) => {
+    socket.on('join:session', ({ sessionId, playerName, isHost }) => {
+      // Validate inputs
+      if (!sessionId || typeof sessionId !== 'string' || sessionId.length > 100) {
+        socket.emit('error', { message: 'Invalid session ID' });
+        return;
+      }
+      if (!playerName || typeof playerName !== 'string' || playerName.length > 100) {
+        socket.emit('error', { message: 'Invalid player name' });
+        return;
+      }
+
       socket.join(sessionId);
 
       const session = sessions.get(sessionId);
@@ -54,6 +80,9 @@ app.prepare().then(() => {
       }
 
       if (!isHost) {
+        // Generate server-side player ID
+        const playerId = randomUUID();
+
         // Add player to session
         const player = {
           id: playerId,
@@ -68,11 +97,18 @@ app.prepare().then(() => {
         players.set(playerId, player);
         session.players.push(player);
 
+        // Track player ID for this session
+        if (!playerIdsBySession.has(sessionId)) {
+          playerIdsBySession.set(sessionId, new Set());
+        }
+        playerIdsBySession.get(sessionId)?.add(playerId);
+
         // Notify all clients in the session
         io.to(sessionId).emit('player:joined', { player });
+        socket.emit('session:joined', { session, playerId });
+      } else {
+        socket.emit('session:joined', { session });
       }
-
-      socket.emit('session:joined', { session });
     });
 
     // Start session
@@ -109,7 +145,28 @@ app.prepare().then(() => {
     });
 
     // Submit answer
-    socket.on('answer:submit', ({ sessionId, playerId, questionId, answer, timeTaken }) => {
+    socket.on('answer:submit', ({ sessionId, playerId, questionId, answer }) => {
+      // Validate inputs
+      if (!sessionId || typeof sessionId !== 'string') {
+        socket.emit('error', { message: 'Invalid session ID' });
+        return;
+      }
+      if (!playerId || typeof playerId !== 'string') {
+        socket.emit('error', { message: 'Invalid player ID' });
+        return;
+      }
+      if (!questionId || typeof questionId !== 'string') {
+        socket.emit('error', { message: 'Invalid question ID' });
+        return;
+      }
+
+      // Verify player is registered in this session
+      const playerIds = playerIdsBySession.get(sessionId);
+      if (!playerIds || !playerIds.has(playerId)) {
+        socket.emit('error', { message: 'Unauthorized player' });
+        return;
+      }
+
       const session = sessions.get(sessionId);
       const player = players.get(playerId);
 
@@ -136,10 +193,8 @@ app.prepare().then(() => {
         isCorrect = Math.abs(numAnswer - correct) < 0.01;
       }
 
-      // Calculate score
-      const points = isCorrect
-        ? calculateScore(isCorrect, question.timeLimit || 30, timeTaken, question.points || 1000)
-        : 0;
+      // Calculate score (no timeTaken from client - calculated server-side)
+      const points = isCorrect ? question.points || 1000 : 0;
 
       // Store answer
       const answerObj = {
@@ -155,7 +210,7 @@ app.prepare().then(() => {
 
       socket.emit('answer:submitted', { isCorrect, points });
 
-      // Notify host of answer received (without revealing correctness to other players)
+      // Notify host of answer received
       io.to(sessionId).emit('answer:received', { playerId, playerName: player.name });
     });
 
